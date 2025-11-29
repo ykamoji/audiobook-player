@@ -1,14 +1,18 @@
 import React, { useRef } from 'react';
-import { FolderIcon, HeadphoneIcon } from './Icons';
+import { FolderIcon, HeadphoneIcon, ListIcon } from './Icons';
 
 interface SetupProps {
   onDirectoryUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isLoading: boolean;
+  onContinueToLibrary?: () => void;
+  hasExistingLibrary?: boolean;
 }
 
 export const Setup: React.FC<SetupProps> = ({ 
   onDirectoryUpload,
-  isLoading
+  isLoading,
+  onContinueToLibrary,
+  hasExistingLibrary
 }) => {
   const directoryInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,6 +62,19 @@ export const Setup: React.FC<SetupProps> = ({
             className="hidden" 
           />
         </div>
+
+        {/* Continue to Library Button */}
+        {hasExistingLibrary && onContinueToLibrary && (
+          <button 
+            onClick={onContinueToLibrary}
+            className="w-full p-4 rounded-xl border border-audible-separator bg-[#2a2a2a] hover:bg-[#333] text-white font-semibold transition-colors flex items-center justify-center gap-3 shadow-lg group"
+          >
+             <div className="p-1 rounded-full bg-gray-700 group-hover:bg-audible-orange group-hover:text-black transition-colors">
+                 <ListIcon className="w-4 h-4" />
+             </div>
+             Back to Library
+          </button>
+        )}
       </div>
     </div>
   );

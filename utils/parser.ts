@@ -25,7 +25,13 @@ const parseTime = (timeStr: string): number => {
 };
 
 export const parseSubtitles = async (file: File): Promise<SubtitleCue[]> => {
-  const text = await file.text();
+  let text = await file.text();
+  
+  // Remove BOM if present
+  if (text.charCodeAt(0) === 0xFEFF) {
+    text = text.slice(1);
+  }
+
   const cues: SubtitleCue[] = [];
   const lines = text.split(/\r?\n/);
   
@@ -42,17 +48,19 @@ export const parseSubtitles = async (file: File): Promise<SubtitleCue[]> => {
   while (i < lines.length) {
     let line = lines[i].trim();
     
-    // Skip empty lines or just numbers (indices) if followed immediately by timestamps
-    if (!line || /^\d+$/.test(line)) {
-      // Check if next line is a timestamp, if so, this line was just an index
+    // Skip empty lines
+    if (!line) {
+      i++;
+      continue;
+    }
+
+    // Check if line is just an index (digits only)
+    // If so, we check if the NEXT line is a timestamp.
+    if (/^\d+$/.test(line)) {
       if (i + 1 < lines.length && lines[i+1].includes('-->')) {
-        // It was an index, proceed to timestamp
+        // It was an index, move to next line which is the timestamp
         i++;
         line = lines[i].trim();
-      } else if (!line) {
-        // Just an empty line
-        i++;
-        continue;
       }
     }
 
@@ -60,26 +68,37 @@ export const parseSubtitles = async (file: File): Promise<SubtitleCue[]> => {
     if (line.includes('-->')) {
       const times = line.split('-->');
       if (times.length === 2) {
-        const start = parseTime(times[0]);
-        const end = parseTime(times[1].split(' ')[0]); // Handle VTT settings after time
+        const startStr = times[0].trim();
+        // For VTT, the end time might be followed by settings like "align:start"
+        // so we split by space and take the first part.
+        // CRITICAL FIX: Trim the second part BEFORE splitting to avoid empty string if there is a leading space.
+        const endStr = times[1].trim().split(/\s+/)[0]; 
+        
+        const start = parseTime(startStr);
+        const end = parseTime(endStr);
         
         // Collect text
         let content = '';
         i++;
         while (i < lines.length && lines[i].trim() !== '') {
+          // Check if the next line is a timestamp (edge case for bad formatting)
+          if (lines[i].includes('-->')) break;
+          
           content += (content ? '\n' : '') + lines[i].trim();
           i++;
         }
         
-        // Clean up text (remove VTT tags like <b>, <v>, etc if needed, though simple rendering handles some)
+        // Clean up text (remove VTT tags like <b>, <v>, etc)
         content = content.replace(/<[^>]*>/g, '');
 
-        cues.push({
-          id: crypto.randomUUID(),
-          start,
-          end,
-          text: content
-        });
+        if (content) {
+            cues.push({
+                id: crypto.randomUUID(),
+                start,
+                end,
+                text: content
+            });
+        }
       } else {
         i++;
       }
