@@ -1,0 +1,5 @@
+{
+  "name": "SyncStream",
+  "description": "A high-fidelity audio player with synchronized, auto-scrolling subtitles. Designed with an iOS-first aesthetic.",
+  "requestFramePermissions": []
+}
