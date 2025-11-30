@@ -1,7 +1,7 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Controls } from './Controls';
-import { ChevronLeftIcon } from './Icons';
+import { ChevronLeftIcon, XIcon, ListIcon } from './Icons';
 import { AudioFileState, SubtitleFileState, SubtitleCue } from '../types';
 
 interface PlayerViewProps {
@@ -26,10 +26,14 @@ interface PlayerViewProps {
   onSubtitleClick: (time: number) => void;
   onNext: () => void;
   onPrevious: () => void;
+  onSkipForward: () => void;
+  onSkipBackward: () => void;
   onOpenMetadata: () => void;
   hasNext: boolean;
   hasPrevious: boolean;
 }
+
+const CUES_PER_SEGMENT = 100;
 
 export const PlayerView: React.FC<PlayerViewProps> = ({
   audioState,
@@ -50,13 +54,15 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
   onSubtitleClick,
   onNext,
   onPrevious,
+  onSkipForward,
+  onSkipBackward,
   onOpenMetadata,
   hasNext,
   hasPrevious
 }) => {
   const subtitleContainerRef = useRef<HTMLDivElement>(null);
   const activeSubtitleRef = useRef<HTMLDivElement>(null);
-  const chaptersScrollRef = useRef<HTMLDivElement>(null);
+  const [showChapters, setShowChapters] = useState(false);
 
   // --- Custom Smooth Scroll Logic ---
   const scrollToActiveCue = () => {
@@ -70,8 +76,6 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
     const elementHeight = element.offsetHeight;
     
     // Determine offset based on viewport width
-    // On Mobile (< 768px), position the active text higher (approx 35% from top) 
-    // instead of centering (50%) to ensure better visibility above controls.
     const isMobile = window.innerWidth < 768;
     const offsetRatio = isMobile ? 0.35 : 0.5;
     
@@ -112,19 +116,19 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
     scrollToActiveCue();
   }, [currentCueIndex]);
 
-  // Scroll active chapter into view and reset subtitle scroll position
+  // Reset subtitle scroll position when changing segments
   useEffect(() => {
-    if (chaptersScrollRef.current) {
-        const activeBtn = chaptersScrollRef.current.children[currentSegmentIndex] as HTMLElement;
-        if (activeBtn) {
-            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-    }
-    // Reset subtitle scroll position when changing segments to avoid long scroll animations
     if (subtitleContainerRef.current) {
         subtitleContainerRef.current.scrollTop = 0;
     }
   }, [currentSegmentIndex]);
+
+  const formatSegmentTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "00:00";
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="relative h-full flex flex-col">
@@ -160,32 +164,6 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                   </span>
               </div>
           )}
-
-          {/* Sub-chapter Segments */}
-          {totalSegments > 1 && (
-            <div className="w-full max-w-md px-6 mt-4">
-                <div 
-                    ref={chaptersScrollRef}
-                    className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2 mask-image-gradient-x"
-                >
-                    {Array.from({ length: totalSegments }).map((_, i) => (
-                        <button
-                            key={i}
-                            onClick={() => onSegmentChange(i)}
-                            className={`
-                                flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all
-                                ${i === currentSegmentIndex 
-                                    ? 'bg-audible-orange text-black scale-110 shadow-lg' 
-                                    : 'bg-white/10 text-gray-400 hover:bg-white/20 hover:text-white'
-                                }
-                            `}
-                        >
-                            {i + 1}
-                        </button>
-                    ))}
-                </div>
-            </div>
-          )}
       </div>
 
       {/* Scrollable Subtitles Area */}
@@ -193,7 +171,6 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
         ref={subtitleContainerRef}
         className="flex-1 overflow-y-auto no-scrollbar relative min-h-0 mask-image-gradient"
         style={{ 
-            // Revised mask to show more text (10% to 90%)
             maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)'
         }}
@@ -227,7 +204,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
             
             {displayedCues.length === 0 && (
             <div className="flex flex-col items-center justify-center text-center text-gray-500 py-10">
-                <p>No lyrics for this segment.</p>
+                <p>No text content for this section.</p>
             </div>
             )}
         </div>
@@ -238,14 +215,17 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
         <Controls
           isPlaying={isPlaying}
           onPlayPause={onTogglePlay}
-          // Progress reflects the FULL audio length, not just the segment
+          // Progress reflects the FULL audio length
           progress={duration > 0 ? (currentTime / duration) * 100 : 0}
           currentTime={currentTime}
           duration={duration}
           onSeek={onSeek}
           onOpenMetadata={onOpenMetadata}
+          onOpenChapters={() => setShowChapters(true)}
           onNext={onNext}
           onPrevious={onPrevious}
+          onSkipForward={onSkipForward}
+          onSkipBackward={onSkipBackward}
           hasNext={hasNext}
           hasPrevious={hasPrevious}
         />
@@ -253,6 +233,60 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
       
       {/* Aesthetic background ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-audible-orange/5 rounded-full blur-[120px] pointer-events-none z-0" />
+
+      {/* Chapters Slide-Up Panel */}
+      <>
+        {/* Backdrop */}
+        <div 
+            className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ${showChapters ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+            onClick={() => setShowChapters(false)}
+        />
+        {/* Bottom Sheet */}
+        <div className={`fixed bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl z-50 transform transition-transform duration-300 ease-out border-t border-white/10 flex flex-col max-h-[70vh] ${showChapters ? 'translate-y-0' : 'translate-y-full'}`}>
+            <div className="flex items-center justify-between p-4 border-b border-white/5">
+                <div className="flex items-center gap-2">
+                    <ListIcon className="w-5 h-5 text-audible-orange" />
+                    <h3 className="font-bold text-base text-white truncate max-w-[200px]">{audioState.name}</h3>
+                </div>
+                <button onClick={() => setShowChapters(false)} className="p-2 bg-white/10 rounded-full text-gray-400 hover:text-white">
+                    <XIcon className="w-5 h-5" />
+                </button>
+            </div>
+            
+            <div className="overflow-y-auto p-3 space-y-1">
+                {Array.from({ length: totalSegments }).map((_, i) => {
+                    // Calculate dynamic duration for this segment based on lines
+                    let dynDuration = 0;
+                    if (subtitleState.cues.length > 0) {
+                        const startIdx = i * CUES_PER_SEGMENT;
+                        const endIdx = Math.min((i + 1) * CUES_PER_SEGMENT - 1, subtitleState.cues.length - 1);
+                        if (startIdx < subtitleState.cues.length && endIdx >= startIdx) {
+                            dynDuration = subtitleState.cues[endIdx].end - subtitleState.cues[startIdx].start;
+                        }
+                    } else if (duration > 0) {
+                        // Fallback logic if no subtitles exist (1 big segment)
+                        dynDuration = duration;
+                    }
+
+                    return (
+                        <button
+                            key={i}
+                            onClick={() => {
+                                onSegmentChange(i);
+                                setShowChapters(false);
+                            }}
+                            className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all ${currentSegmentIndex === i ? 'bg-audible-orange text-black' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}
+                        >
+                            <span className="font-medium text-sm">1.{i + 1}</span>
+                            <span className={`text-xs ${currentSegmentIndex === i ? 'text-black/70' : 'text-gray-500'}`}>
+                                {formatSegmentTime(dynDuration)}
+                            </span>
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+      </>
     </div>
   );
 };

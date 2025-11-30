@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlayIcon, PauseIcon, MoreHorizontalIcon, SkipBackIcon, SkipForwardIcon } from './Icons';
+import { PlayIcon, PauseIcon, MoreHorizontalIcon, SkipBackIcon, SkipForwardIcon, ChaptersIcon, Rewind10Icon, Forward10Icon } from './Icons';
 
 interface ControlsProps {
   isPlaying: boolean;
@@ -9,8 +9,11 @@ interface ControlsProps {
   currentTime: number;
   onSeek: (value: number) => void;
   onOpenMetadata: () => void;
+  onOpenChapters: () => void;
   onNext: () => void;
   onPrevious: () => void;
+  onSkipForward: () => void;
+  onSkipBackward: () => void;
   hasNext: boolean;
   hasPrevious: boolean;
 }
@@ -30,8 +33,11 @@ export const Controls: React.FC<ControlsProps> = ({
   currentTime,
   onSeek,
   onOpenMetadata,
+  onOpenChapters,
   onNext,
   onPrevious,
+  onSkipForward,
+  onSkipBackward,
   hasNext,
   hasPrevious
 }) => {
@@ -47,15 +53,15 @@ export const Controls: React.FC<ControlsProps> = ({
           onChange={(e) => onSeek(Number(e.target.value))}
           className="absolute z-20 w-full h-full opacity-0 cursor-pointer"
         />
-        <div className="w-full h-1 bg-audible-separator rounded-full overflow-hidden">
+        <div className="w-full h-1 bg-audible-separator rounded-0 overflow-hidden">
           <div 
-            className="h-full bg-audible-orange rounded-full transition-all duration-100 ease-linear"
+            className="h-full bg-audible-orange rounded-0 transition-all duration-100 ease-linear"
             style={{ width: `${progress}%` }}
           />
         </div>
         {/* Scrubber Knob (Visual only, moves with progress) */}
         <div 
-          className="absolute h-2 w-2 bg-white rounded-full shadow-lg pointer-events-none transition-all duration-100 ease-linear"
+          className="absolute h-4 w-4 bg-white rounded-full shadow-lg pointer-events-none transition-all duration-100 ease-linear"
           style={{ left: `calc(${progress}% - 4px)` }}
         />
       </div>
@@ -66,8 +72,24 @@ export const Controls: React.FC<ControlsProps> = ({
       </div>
 
       {/* Main Controls */}
-      <div className="flex items-center justify-center mt-1 relative gap-8">
+      <div className="flex items-center justify-center mt-1 relative gap-4">
         
+        {/* Chapters Button (Left aligned absolute) */}
+        <button
+          onClick={onOpenChapters}
+          className="absolute left-0 p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10"
+        >
+          <ChaptersIcon className="w-6 h-6" />
+        </button>
+
+        {/* Rewind 10s */}
+        <button
+          onClick={onSkipBackward}
+          className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+        >
+          <Rewind10Icon className="w-6 h-6" />
+        </button>
+
         {/* Previous Button */}
         <button
           onClick={onPrevious}
@@ -92,6 +114,14 @@ export const Controls: React.FC<ControlsProps> = ({
           className="w-10 h-10 flex items-center justify-center text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <SkipForwardIcon className="w-6 h-6" />
+        </button>
+
+        {/* Forward 10s */}
+        <button
+          onClick={onSkipForward}
+          className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+        >
+          <Forward10Icon className="w-6 h-6" />
         </button>
 
         {/* Metadata Button (Right aligned absolute) */}

@@ -24,9 +24,7 @@ const parseTime = (timeStr: string): number => {
   return seconds;
 };
 
-export const parseSubtitles = async (file: File): Promise<SubtitleCue[]> => {
-  let text = await file.text();
-  
+export const parseSubtitleText = (text: string): SubtitleCue[] => {
   // Remove BOM if present
   if (text.charCodeAt(0) === 0xFEFF) {
     text = text.slice(1);
@@ -71,7 +69,6 @@ export const parseSubtitles = async (file: File): Promise<SubtitleCue[]> => {
         const startStr = times[0].trim();
         // For VTT, the end time might be followed by settings like "align:start"
         // so we split by space and take the first part.
-        // CRITICAL FIX: Trim the second part BEFORE splitting to avoid empty string if there is a leading space.
         const endStr = times[1].trim().split(/\s+/)[0]; 
         
         const start = parseTime(startStr);
@@ -108,4 +105,9 @@ export const parseSubtitles = async (file: File): Promise<SubtitleCue[]> => {
   }
 
   return cues;
+};
+
+export const parseSubtitles = async (file: File): Promise<SubtitleCue[]> => {
+  const text = await file.text();
+  return parseSubtitleText(text);
 };

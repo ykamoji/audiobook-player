@@ -8,9 +8,14 @@ export interface SubtitleCue {
 export interface Track {
   id: string;
   name: string;
-  audioFile: File;
-  subtitleFile: File | null;
-  coverFile?: File | null;
+  audioFile?: File; // Web
+  subtitleFile?: File | null; // Web
+  coverFile?: File | null; // Web
+  
+  // Native properties
+  audioPath?: string;
+  subtitlePath?: string;
+  coverPath?: string;
 }
 
 export interface Playlist {
@@ -33,18 +38,22 @@ export interface SubtitleFileState {
   name: string;
 }
 
+export interface ProgressData {
+  currentTime: number;
+  duration: number;
+  percentage: number;
+  updatedAt: number;
+  segmentHistory?: Record<number, number>; // Index -> timestamp
+}
+
+export interface AppSettings {
+  volume: number;
+  isAutoPlay: boolean;
+}
+
 export interface AppData {
-  progress: Record<string, { 
-    currentTime: number; 
-    duration: number; 
-    percentage: number; 
-    updatedAt: number;
-    segmentHistory?: Record<number, number>; // Index -> timestamp
-  }>;
+  progress: Record<string, ProgressData>;
   playlists: Playlist[];
-  settings: {
-    volume: number;
-    isAutoPlay: boolean;
-  };
+  settings: AppSettings;
   exportedAt: number;
 }

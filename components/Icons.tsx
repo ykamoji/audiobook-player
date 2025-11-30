@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export const PlayIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
@@ -136,5 +137,34 @@ export const SkipForwardIcon = ({ className = "w-6 h-6" }: { className?: string 
 export const PencilIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+  </svg>
+);
+
+export const ChaptersIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+  </svg>
+);
+
+export const LibraryIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+  </svg>
+);
+
+export const Rewind10Icon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 13c0-4.8 4.2-8.2 8-8.2s8 3.4 8 8.2" />
+    <path d="M8 9L4.2 6v4" />
+    <text x="12" y="18.6" fontSize="8.8" fontWeight="100" textAnchor="middle" fill="currentColor">10</text>
+  </svg>
+);
+
+
+export const Forward10Icon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 13c0-4.8 4.2-8.2 8-8.2s8 3.4 8 8.2" />
+    <path d="M16 9l3.8-3v4" />
+    <text x="12" y="18.6" fontSize="8.8" fontWeight="100" textAnchor="middle" fill="currentColor">10</text>
   </svg>
 );

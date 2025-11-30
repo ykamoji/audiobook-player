@@ -1,12 +1,13 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { Playlist, Track } from '../types';
+import { Playlist, Track, ProgressData } from '../types';
 import { MusicIcon } from './Icons';
 import { Thumbnail } from './Thumbnail';
 
 interface PlaylistCardProps {
     playlist: Playlist;
     allTracks: Track[];
-    progressMap: Record<string, { currentTime: number, duration: number, percentage: number }>;
+    progressMap: Record<string, ProgressData>;
     onClick: () => void;
 }
 
@@ -53,7 +54,7 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, allTracks,
             className="group cursor-pointer w-full flex flex-col gap-4 mb-2"
         >
             {/* Image Container */}
-            <div className="relative w-full aspect-[2/1] rounded-xl overflow-hidden shadow-2xl transition-all transform group-hover:scale-[1.005] border border-white/5 bg-gray-800">
+            <div className="relative w-full aspect-[2/1] rounded-xl overflow-hidden shadow-2xl transition-all transform group-hover:scale-[1.005] bg-gray-800">
                 <div className="absolute inset-0 bg-gray-800">
                     {currentCover ? (
                         <Thumbnail file={currentCover} />
@@ -77,8 +78,8 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, allTracks,
                     {playlistProgress > 0 && (
                         <>
                             <span className="w-1 h-1 bg-gray-600 rounded-full"></span>
-                            <span className="text-sm font-bold text-audible-orange">
-                                {playlistProgress}% listened
+                            <span className="text-[10px] font-semibold text-audible-orange">
+                                {playlistProgress}%
                             </span>
                         </>
                     )}

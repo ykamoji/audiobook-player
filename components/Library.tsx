@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Track, Playlist } from '../types';
-import { ChevronLeftIcon, PlusIcon, TrashIcon, SaveIcon, RepeatIcon, PencilIcon } from './Icons';
+import { Track, Playlist, ProgressData } from '../types';
+import { ChevronLeftIcon, PlusIcon, TrashIcon, SaveIcon, RepeatIcon, MoreHorizontalIcon, PencilIcon } from './Icons';
 import { PlaylistCard } from './PlaylistCard';
 import { TrackRow } from './TrackRow';
 import { LibraryModals } from './LibraryModals';
@@ -10,7 +11,7 @@ interface LibraryProps {
   playlists: Playlist[];
   onSelectTrack: (track: Track, index: number, specificPlaylist?: Track[]) => void;
   onBack: () => void;
-  progressMap: Record<string, { currentTime: number, duration: number, percentage: number }>;
+  progressMap: Record<string, ProgressData>;
   onCreatePlaylist: (name: string, initialTracks: Track[]) => void;
   onAddToPlaylist: (playlistId: string, track: Track) => void;
   onAddMultipleToPlaylist: (playlistId: string, tracks: Track[]) => void;
@@ -65,18 +66,40 @@ export const Library: React.FC<LibraryProps> = ({
   
   // Context Menu State
   const [activeMenuTrackId, setActiveMenuTrackId] = useState<string | null>(null);
+  const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
 
   // Virtual Scroll State
   const [scrollTop, setScrollTop] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const playlistMenuRef = useRef<HTMLDivElement>(null);
+  const playlistMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   // Reset selection when tab changes
   useEffect(() => {
       setIsSelectionMode(false);
       setSelectedTrackIds(new Set());
       setScrollTop(0); // Reset scroll on tab change
+      setShowPlaylistMenu(false);
       if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
   }, [activeTab, selectedPlaylistId]);
+
+  // Close playlist menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+        if (
+            playlistMenuRef.current && 
+            !playlistMenuRef.current.contains(event.target as Node) &&
+            playlistMenuButtonRef.current &&
+            !playlistMenuButtonRef.current.contains(event.target as Node)
+        ) {
+            setShowPlaylistMenu(false);
+        }
+    };
+    if (showPlaylistMenu) {
+        document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showPlaylistMenu]);
 
   // --- Derived State for Selection Logic ---
   const currentListTracks = useMemo(() => {
@@ -200,18 +223,18 @@ export const Library: React.FC<LibraryProps> = ({
 
     return (
         <div className="animate-fade-in pb-20 px-4">
-             <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
+             <div className="flex items-center justify-between mb-6 relative">
+                <div className="flex items-center gap-3">
                     <button onClick={() => setSelectedPlaylistId(null)} className="p-2 -ml-2 hover:bg-white/10 rounded-full">
                         <ChevronLeftIcon />
                     </button>
-                    <h2 className="text-2xl font-bold text-white">{playlist.name}</h2>
+                    <h2 className="text-2xl font-bold text-white truncate max-w-[200px] sm:max-w-md">{playlist.name}</h2>
                     <button 
                         onClick={() => {
                             setRenamePlaylistName(playlist.name);
                             setShowRenamePlaylistModal(true);
                         }}
-                        className="p-1.5 ml-1 text-gray-500 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                        className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"
                         title="Rename Playlist"
                     >
                         <PencilIcon className="w-5 h-5" />
@@ -222,9 +245,35 @@ export const Library: React.FC<LibraryProps> = ({
                         {isSelectionMode ? 'Cancel' : 'Select'}
                     </button>
                     {!isSelectionMode && (
-                         <button onClick={() => onDeletePlaylist(playlist.id)} className="text-gray-500 hover:text-red-400">
-                             <TrashIcon />
-                         </button>
+                         <div className="relative">
+                            <button 
+                                ref={playlistMenuButtonRef}
+                                onClick={() => setShowPlaylistMenu(!showPlaylistMenu)}
+                                className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full"
+                            >
+                                <MoreHorizontalIcon />
+                            </button>
+                            {showPlaylistMenu && (
+                                <div 
+                                    ref={playlistMenuRef}
+                                    className="absolute right-0 top-full mt-2 w-48 bg-[#2a2a2a] border border-audible-separator shadow-2xl rounded-lg overflow-hidden z-20 animate-fade-in"
+                                >
+                                    <button 
+                                        className="w-full text-left px-4 py-3 hover:bg-white/10 text-sm text-red-400 flex items-center gap-2"
+                                        onClick={() => {
+                                            if (window.confirm("Are you sure you want to delete this playlist?")) {
+                                                onDeletePlaylist(playlist.id);
+                                                setSelectedPlaylistId(null);
+                                            }
+                                            setShowPlaylistMenu(false);
+                                        }}
+                                    >
+                                        <TrashIcon className="w-4 h-4" />
+                                        Delete Playlist
+                                    </button>
+                                </div>
+                            )}
+                         </div>
                     )}
                 </div>
              </div>
@@ -299,7 +348,7 @@ export const Library: React.FC<LibraryProps> = ({
               onClick={() => setActiveTab('titles')}
               className={`text-lg font-bold pb-1 transition-colors ${activeTab === 'titles' ? 'text-white border-b-2 border-audible-orange' : 'text-gray-500 hover:text-gray-300'}`}
             >
-              All Titles
+              Library
             </button>
             <button 
               onClick={() => setActiveTab('playlists')}
@@ -336,35 +385,46 @@ export const Library: React.FC<LibraryProps> = ({
         {selectedPlaylistId ? (
             renderPlaylistDetail()
         ) : activeTab === 'titles' ? (
-            <div className="pb-20 px-4" style={{ height: `${allTracks.length * ROW_HEIGHT}px`, position: 'relative' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: `${topSpacerHeight}px` }} />
-                <div style={{ position: 'absolute', top: `${topSpacerHeight}px`, left: 0, right: 0 }}>
-                    {virtualTracks.map((track, i) => (
-                        <TrackRow
-                            key={track.id}
-                            track={track}
-                            index={startIndex + i}
-                            list={allTracks}
-                            isInsidePlaylist={false}
-                            isSelected={selectedTrackIds.has(track.id)}
-                            isSelectionMode={isSelectionMode}
-                            progressMap={progressMap}
-                            associatedPlaylists={playlists.filter(p => p.trackNames.includes(track.name))}
-                            activeMenuTrackId={activeMenuTrackId}
-                            onSelectTrack={onSelectTrack}
-                            onToggleSelection={toggleSelection}
-                            onOpenMenu={setActiveMenuTrackId}
-                            onAddToPlaylist={(track) => handleOpenAddModal([track])}
-                            onViewMetadata={onViewMetadata}
-                            onRemoveFromPlaylist={() => {}} // No op in main list
-                            style={{ height: `${ROW_HEIGHT}px` }}
-                        />
-                    ))}
+            allTracks.length === 0 ? (
+                <div className="w-full h-full flex items-center justify-center text-gray-500 pb-20">
+                    <span className="text-xl font-medium">None</span>
                 </div>
-            </div>
+            ) : (
+                <div className="pb-20 px-4" style={{ height: `${allTracks.length * ROW_HEIGHT}px`, position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: `${topSpacerHeight}px` }} />
+                    <div style={{ position: 'absolute', top: `${topSpacerHeight}px`, left: 0, right: 0 }}>
+                        {virtualTracks.map((track, i) => (
+                            <TrackRow
+                                key={track.id}
+                                track={track}
+                                index={startIndex + i}
+                                list={allTracks}
+                                isInsidePlaylist={false}
+                                isSelected={selectedTrackIds.has(track.id)}
+                                isSelectionMode={isSelectionMode}
+                                progressMap={progressMap}
+                                associatedPlaylists={playlists.filter(p => p.trackNames.includes(track.name))}
+                                activeMenuTrackId={activeMenuTrackId}
+                                onSelectTrack={onSelectTrack}
+                                onToggleSelection={toggleSelection}
+                                onOpenMenu={setActiveMenuTrackId}
+                                onAddToPlaylist={(track) => handleOpenAddModal([track])}
+                                onViewMetadata={onViewMetadata}
+                                onRemoveFromPlaylist={() => {}} // No op in main list
+                                style={{ height: `${ROW_HEIGHT}px` }}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )
         ) : (
              // Playlists View
              <div className="grid grid-cols-1 gap-6 p-4 pb-20 animate-fade-in max-w-lg mx-auto md:max-w-2xl lg:max-w-4xl">
+                {playlists.length === 0 && (
+                     <div className="w-full text-center py-4 text-gray-500">
+                        <span className="text-xl font-medium">None</span>
+                    </div>
+                )}
                 {playlists.map(playlist => (
                     <PlaylistCard 
                         key={playlist.id} 
@@ -378,7 +438,7 @@ export const Library: React.FC<LibraryProps> = ({
                  {/* Create Playlist Button */}
                  <button 
                     onClick={() => setShowCreatePlaylistModal(true)}
-                    className="w-full h-24 flex items-center justify-center gap-3 bg-audible-card rounded-xl border border-dashed border-gray-700 text-gray-500 hover:text-audible-orange transition-colors group"
+                    className="w-full h-24 flex items-center justify-center gap-3 rounded-xl text-gray-500 hover:text-audible-orange transition-colors group"
                  >
                     <PlusIcon className="w-6 h-6 transition-colors group-hover:text-audible-orange" />
                     <span className="font-medium text-lg transition-colors group-hover:text-audible-orange">Create New Playlist</span>

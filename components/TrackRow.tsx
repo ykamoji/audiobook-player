@@ -1,6 +1,7 @@
+
 import React, { useRef, useEffect } from 'react';
-import { Track, Playlist } from '../types';
-import { MusicIcon, MoreHorizontalIcon, CheckCircleIcon, CircleIcon, PlusIcon, InfoIcon, TrashIcon } from './Icons';
+import { Track, Playlist, ProgressData } from '../types';
+import { MusicIcon, MoreHorizontalIcon, CheckCircleIcon, CircleIcon, PlusIcon, InfoIcon } from './Icons';
 import { Thumbnail } from './Thumbnail';
 
 interface TrackRowProps {
@@ -10,7 +11,7 @@ interface TrackRowProps {
   isInsidePlaylist: boolean;
   isSelected: boolean;
   isSelectionMode: boolean;
-  progressMap: Record<string, { currentTime: number, duration: number, percentage: number }>;
+  progressMap: Record<string, ProgressData>;
   associatedPlaylists: Playlist[];
   activeMenuTrackId: string | null;
   onSelectTrack: (track: Track, index: number, list: Track[]) => void;
@@ -81,7 +82,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
         <div 
            className="flex-1 flex items-center gap-4 cursor-pointer min-w-0"
         >
-            <div className={`relative w-14 h-14 min-w-[3.5rem] rounded-md bg-gray-800 flex items-center justify-center transition-colors overflow-hidden border border-white/5 ${isSelectionMode ? 'bg-transparent border-none' : ''}`}>
+            <div className={`relative w-14 h-14 min-w-[3.5rem] rounded-md bg-gray-800 flex items-center justify-center transition-colors overflow-hidden ${isSelectionMode ? 'bg-transparent border-none' : ''}`}>
                 {isSelectionMode ? (
                     isSelected ? (
                         <CheckCircleIcon className="w-8 h-8 text-audible-orange" />
@@ -106,9 +107,9 @@ export const TrackRow: React.FC<TrackRowProps> = ({
             {/* Meta Row */}
             <div className="flex flex-col gap-2 mt-2 pr-8">
                 {!isSelectionMode && percentage > 0 && (
-                <div className="w-full h-1 bg-gray-700 rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-gray-700 rounded-0 overflow-hidden">
                     <div 
-                    className={`h-full rounded-full ${isCompleted ? 'bg-green-500' : 'bg-audible-orange'}`}
+                    className={`h-full rounded-f0 ${isCompleted ? 'bg-green-500' : 'bg-audible-orange'}`}
                     style={{ width: `${percentage}%` }}
                     />
                 </div>
@@ -118,9 +119,9 @@ export const TrackRow: React.FC<TrackRowProps> = ({
                         {isCompleted ? (
                         <span className="text-green-500 font-medium">Completed</span>
                         ) : percentage > 0 ? (
-                        <span>{Math.floor(percentage)}% listened</span>
+                        <span>{Math.floor(percentage)}%</span>
                         ) : (
-                        <span>Not started</span>
+                        <span></span>
                         )}
                     </div>
                     
@@ -128,7 +129,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
                     {!isInsidePlaylist && associatedPlaylists.length > 0 && (
                         <div className="flex flex-wrap gap-1 justify-end ml-2 max-w-[45%]">
                             {associatedPlaylists.map(p => (
-                                <span key={p.id} className="text-[10px] px-1.5 py-0.5 bg-gray-800 border border-gray-700 rounded text-gray-400 truncate max-w-full">
+                                <span key={p.id} className="text-[8px] px-1.5 py-0.5 font-medium opacity-50 text-audible-orange truncate max-w-full">
                                     {p.name}
                                 </span>
                             ))}
@@ -180,20 +181,6 @@ export const TrackRow: React.FC<TrackRowProps> = ({
               <InfoIcon className="w-4 h-4" />
               View Metadata
             </button>
-
-            {isInsidePlaylist && (
-                <button 
-                className="w-full text-left px-4 py-3 hover:bg-white/10 text-sm text-red-400 flex items-center gap-2"
-                onClick={(e) => {
-                   e.stopPropagation();
-                   onRemoveFromPlaylist(track.name);
-                   onOpenMenu(null);
-                }}
-              >
-                <TrashIcon className="w-4 h-4" />
-                Remove from Playlist
-              </button>
-            )}
           </div>
         )}
       </div>
