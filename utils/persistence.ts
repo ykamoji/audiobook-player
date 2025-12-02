@@ -1,5 +1,4 @@
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-// @ts-ignore
+import { Filesystem, Encoding } from '@capacitor/filesystem';
 import { Preferences } from "@capacitor/preferences";
 import { Capacitor } from '@capacitor/core';
 import { AppData } from '../types';
@@ -7,18 +6,10 @@ import { AppData } from '../types';
 export const saveToNativeFilesystem = async (data: AppData, rootPath?: string) => {
     if (!Capacitor.isNativePlatform()) return false;
     try {
-        // const path = rootPath ? `${rootPath}/metadata.json` : 'metadata.json';
-        // const options = rootPath
-        //     ? { path, data: JSON.stringify(data, null, 2), encoding: Encoding.UTF8 }
-        //     : { path: 'metadata.json', data: JSON.stringify(data, null, 2), directory: Directory.Documents, encoding: Encoding.UTF8 };
-        //
-        // await Filesystem.writeFile(options);
         await Preferences.set({
           key: "metadata",
           value: JSON.stringify(data),
         });
-
-        console.log('Saved metadata to filesystem');
         return true
     } catch (e) {
         console.error('Error saving to filesystem', e);
@@ -29,15 +20,6 @@ export const saveToNativeFilesystem = async (data: AppData, rootPath?: string) =
 export const loadInitialNativeMetadata = async (): Promise<AppData | null> => {
     if (!Capacitor.isNativePlatform()) return null;
     try {
-        // const result = await Filesystem.readFile({
-        //     path: 'metadata.json',
-        //     directory: Directory.Documents,
-        //     encoding: Encoding.UTF8,
-        // });
-        //
-        // const text = typeof result.data === 'string' ? result.data : JSON.stringify(result.data);
-        // return JSON.parse(text);
-
         const { value } = await Preferences.get({ key: "metadata" });
         if (!value) return null;   // Nothing saved yet
         return JSON.parse(value);

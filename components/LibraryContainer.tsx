@@ -62,7 +62,6 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
       let saved_data: boolean;
       if (Capacitor.isNativePlatform()) {
           saved_data = await saveToNativeFilesystem(data, nativeRootPath);
-          console.log("Data saved to storage.");
       } else {
           saved_data = downloadWebMetadata(data);
       }

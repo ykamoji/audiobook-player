@@ -52,7 +52,7 @@ export const LibraryModals: React.FC<LibraryModalsProps> = ({
               <button onClick={() => setShowAddModal(false)} className="text-gray-400 hover:text-white">Close</button>
             </div>
             
-            <div className="max-h-[60vh] overflow-y-auto p-2">
+            <div className="max-h-[60dvh] overflow-y-auto p-2">
                {/* New Playlist Option */}
                <div className="p-2">
                    <input 

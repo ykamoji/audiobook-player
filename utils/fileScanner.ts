@@ -50,7 +50,6 @@ export const scanNativePath = async (
                 subtitleMap.set(cleanName, fullPath);
             } else if (COVER_EXTS.includes(ext)) {
                 const urlpath = Capacitor.convertFileSrc(fullPath);
-                // console.log("WHY_NOT", urlpath)
                 coverMap.set(cleanName, urlpath);
             } else if (cleanName === "metadata.json") {
                 try {
@@ -140,8 +139,6 @@ export const scanNativePath = async (
             }
         }
 
-        // console.log("WHY_NOT_AGAIN", filename, baseName, path, coverPath)
-
         tracks.push({
             id: crypto.randomUUID(),
             name: baseName,
@@ -203,8 +200,6 @@ export const scanWebFiles = async (files: File[]): Promise<{ tracks: Track[], me
                 break;
             }
         }
-
-        // console.log("WHY_NOT_AGAIN", audioFile, audioBaseName, coverFile)
 
         return {
             id: crypto.randomUUID(),

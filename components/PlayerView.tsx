@@ -1,8 +1,8 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { Controls } from './Controls';
 import { ChevronLeftIcon, XIcon, ListIcon } from './Icons';
 import { AudioFileState, SubtitleFileState, SubtitleCue } from '../types';
+import { SlideWindow } from "./SlideWindow.tsx";
 
 interface PlayerViewProps {
   audioState: AudioFileState;
@@ -142,7 +142,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
       </div>
 
       {/* Fixed Cover Image Area */}
-      <div className="mt-14 w-full flex-none flex flex-col justify-center items-center h-[45vh] min-h-[300px] max-h-[600px] z-10 transition-all duration-300">
+      <div className="mt-14 w-full flex-none flex flex-col justify-center items-center h-[45dvh] min-h-[300px] max-h-[600px] z-10 transition-all duration-300">
           {audioState.coverUrl ? (
               <div className="relative h-[85%] aspect-square rounded-lg overflow-hidden">
                   <img 
@@ -206,7 +206,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
       </div>
 
       {/* Player Controls (Bottom Sheet) */}
-      <div className="glass absolute bottom-0 left-0 right-0 p-4 pt-3 pb-4 rounded-t-3xl border-t border-white/5 z-20">
+      <div className="glass absolute bottom-0 left-0 right-0 p-4 pt-3 pb-4 rounded-t-3xl border-t border-white/5 z-20" style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 30px)`}}>
         <Controls
           isPlaying={isPlaying}
           onPlayPause={onTogglePlay}
@@ -237,7 +237,8 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
             onClick={() => setShowChapters(false)}
         />
         {/* Bottom Sheet */}
-        <div className={`fixed bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl z-50 transform transition-transform duration-300 ease-out border-t border-white/10 flex flex-col max-h-[70vh] ${showChapters ? 'translate-y-0' : 'translate-y-full'}`}>
+          <SlideWindow open={showChapters} onClose={() => setShowChapters(false)} side="bottom" height="50dvh">
+            <div className="bg-[#1a1a1a] rounded-t-3xl z-50 border-t border-white/10 flex flex-col h-full">
             <div className="flex items-center justify-between p-4 border-b border-white/5">
                 <div className="flex items-center gap-2">
                     <ListIcon className="w-5 h-5 text-audible-orange" />
@@ -263,24 +264,26 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                         dynDuration = duration;
                     }
 
-                    return (
-                        <button
-                            key={i}
-                            onClick={() => {
-                                onSegmentChange(i);
-                                setShowChapters(false);
-                            }}
-                            className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all ${currentSegmentIndex === i ? 'bg-audible-orange text-black' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}
-                        >
-                            <span className="font-medium text-sm">1.{i + 1}</span>
-                            <span className={`text-xs ${currentSegmentIndex === i ? 'text-black/70' : 'text-gray-500'}`}>
+                      return (
+                          <button
+                              key={i}
+                              onClick={() => {
+                                  onSegmentChange(i);
+                                  setShowChapters(false);
+                              }}
+                              className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all ${currentSegmentIndex === i ? 'bg-audible-orange text-black' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}
+                          >
+                              <span className="font-medium text-sm">1.{i + 1}</span>
+                              <span
+                                  className={`text-xs ${currentSegmentIndex === i ? 'text-black/70' : 'text-gray-500'}`}>
                                 {formatSegmentTime(dynDuration)}
                             </span>
-                        </button>
-                    );
-                })}
-            </div>
-        </div>
+                          </button>
+                      );
+                  })}
+              </div>
+          </div>
+          </SlideWindow>
       </>
     </div>
   );

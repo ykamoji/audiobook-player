@@ -42,7 +42,7 @@ export const Controls: React.FC<ControlsProps> = ({
   hasPrevious
 }) => {
   return (
-    <div className="flex flex-col gap-2 w-full max-w-lg mx-auto relative" style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 30px)`}}>
+    <div className="flex flex-col gap-2 w-full max-w-lg mx-auto relative">
       {/* Progress Bar */}
       <div className="group relative w-full h-3 flex items-center cursor-pointer">
         <input

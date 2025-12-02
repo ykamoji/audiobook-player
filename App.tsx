@@ -27,25 +27,18 @@ function App() {
 
   // Handlers for Library
   const applyMetadata = (data: AppData) => {
-    if(localStorage.getItem("system_metadata") === 'true'){
-        console.log("Metadata already loaded from system !")
-        return
-    }
+    if(localStorage.getItem("system_metadata") === 'true') return
     if (data.progress) {
         setProgressMap(prev => {
             const newMap = {...prev, ...data.progress};
             localStorage.setItem('audiobook_progress', JSON.stringify(newMap));
-            console.log("Setting progress from metadata  ", JSON.stringify(newMap))
             return newMap;
         });
     }
     if (data.playlists) playlistManager.setSavedPlaylists(data.playlists);
     if (data.settings) {
-        // if (data.settings.volume !== undefined) setVolume(data.settings.volume);
         if (data.settings.isAutoPlay !== undefined) setIsAutoPlay(data.settings.isAutoPlay);
     }
-
-    console.log("Loaded data", data)
   };
 
   const { allTracks, isLoading, nativeRootPath, handleDirectoryUpload } = useLibrary({
@@ -71,7 +64,6 @@ function App() {
 
         const nativeData = await loadInitialNativeMetadata();
         if (nativeData) {
-            console.log("Loaded Data", nativeData)
             applyMetadata(nativeData);
             localStorage.setItem("system_metadata", "true");
         }
