@@ -1,7 +1,16 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Track, Playlist, ProgressData } from '../types';
-import { ChevronLeftIcon, PlusIcon, TrashIcon, SaveIcon, RepeatIcon, MoreHorizontalIcon, PencilIcon } from './Icons';
+import {
+    ChevronLeftIcon,
+    PlusIcon,
+    TrashIcon,
+    SaveIcon,
+    RepeatIcon,
+    MoreHorizontalIcon,
+    PencilIcon,
+    SpinnerIcon
+} from './Icons';
 import { PlaylistCard } from './PlaylistCard';
 import { TrackRow } from './TrackRow';
 import { LibraryModals } from './LibraryModals';
@@ -20,6 +29,7 @@ interface LibraryProps {
   onRemoveFromPlaylist: (playlistId: string, trackName: string) => void;
   onRemoveMultipleFromPlaylist: (playlistId: string, trackNames: string[]) => void;
   onExportData: () => void;
+  exportSuccess: boolean,
   isAutoPlay: boolean;
   onToggleAutoPlay: () => void;
   onViewMetadata: (track: Track) => void;
@@ -43,6 +53,7 @@ export const Library: React.FC<LibraryProps> = ({
   onRemoveFromPlaylist,
   onRemoveMultipleFromPlaylist,
   onExportData,
+  exportSuccess,
   isAutoPlay,
   onToggleAutoPlay,
   onViewMetadata
@@ -329,13 +340,19 @@ export const Library: React.FC<LibraryProps> = ({
                 <RepeatIcon className="w-3 h-3" />
                 Auto-Play {isAutoPlay ? 'On' : 'Off'}
             </button>
-            <button 
+            <button
               onClick={onExportData}
-              className="flex items-center gap-2 text-sm text-gray-400 hover:text-audible-orange transition-colors"
+              // className="flex items-center gap-2 text-sm text-gray-400 hover:text-audible-orange transition-colors"
+              className={`flex items-center gap-2 text-sm transition-all ${exportSuccess ? "text-green-400 scale-110" : "text-gray-400 hover:text-audible-orange"}`}
               title="Save progress and playlists to file"
+              style={{transform: exportSuccess ? "scale(1.15)" : "scale(1)", transition: "transform 150ms ease, color 150ms ease"}}
             >
-              <SaveIcon className="w-5 h-5" />
-              <span className="hidden sm:inline">Save Data</span>
+                {exportSuccess ? (
+                    <SpinnerIcon className="w-5 h-5" />
+                      ) : (
+                          <><SaveIcon className="w-5 h-5" />
+                        <span className="hidden sm:inline">Save Data</span></>
+                    )}
             </button>
         </div>
       </div>

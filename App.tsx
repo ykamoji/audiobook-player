@@ -27,6 +27,8 @@ function App() {
 
   // Handlers for Library
   const applyMetadata = (data: AppData) => {
+    if(localStorage.getItem("system_metadata") === 'true')
+        return
     if (data.progress) {
         setProgressMap(prev => {
             const newMap = {...prev, ...data.progress};
@@ -66,7 +68,10 @@ function App() {
         if (storedAutoPlay) setIsAutoPlay(JSON.parse(storedAutoPlay));
 
         const nativeData = await loadInitialNativeMetadata();
-        if (nativeData) applyMetadata(nativeData);
+        if (nativeData) {
+            applyMetadata(nativeData);
+            localStorage.setItem("system_metadata", "true");
+        }
       } catch (e) {
         console.error("Storage load error", e);
       } finally {

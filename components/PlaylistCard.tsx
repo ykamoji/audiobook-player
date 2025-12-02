@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Playlist, Track, ProgressData } from '../types';
 import { MusicIcon } from './Icons';
 import { Thumbnail } from './Thumbnail';
+import {Capacitor} from "@capacitor/core";
 
 interface PlaylistCardProps {
     playlist: Playlist;
@@ -12,14 +13,20 @@ interface PlaylistCardProps {
 }
 
 export const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, allTracks, progressMap, onClick }) => {
+
     const { covers, playlistProgress, totalTracks } = useMemo(() => {
-        const images: File[] = [];
+        const images: (File | string)[] = [];
         let totalPercentage = 0;
         const total = playlist.trackNames.length;
 
         for (const name of playlist.trackNames) {
             const t = allTracks.find(track => track.name === name);
-            if (t && t.coverFile) images.push(t.coverFile);
+
+            if (t?.coverFile) {
+                images.push(t.coverFile); // now supports File or string
+            }else{
+                images.push(Capacitor.convertFileSrc(t.coverPath))
+            }
             
             const p = progressMap[name];
             if (p) totalPercentage += p.percentage;

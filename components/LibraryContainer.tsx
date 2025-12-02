@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { Library } from './Library';
 import { Track, Playlist, AppData, ProgressData } from '../types';
 import { Capacitor } from '@capacitor/core';
-import { FilePicker } from '@capawesome/capacitor-file-picker';
-import { scanNativePath, scanWebFiles } from '../utils/fileScanner';
 import { saveToNativeFilesystem, downloadWebMetadata } from '../utils/persistence';
 
 interface LibraryContainerProps {
@@ -52,6 +49,8 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
   nativeRootPath
 }) => {
 
+  const [exportSuccess, setExportSuccess] = React.useState(false);
+
   const handleExportData = async () => {
       const data: AppData = {
           progress: progressMap,
@@ -60,11 +59,17 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
           exportedAt: Date.now()
       };
 
+      let saved_data: boolean;
       if (Capacitor.isNativePlatform()) {
-          await saveToNativeFilesystem(data, nativeRootPath);
-          alert("Data saved to storage.");
+          saved_data = await saveToNativeFilesystem(data, nativeRootPath);
+          console.log("Data saved to storage.");
       } else {
-          downloadWebMetadata(data);
+          saved_data = downloadWebMetadata(data);
+      }
+
+      if(saved_data){
+          setExportSuccess(true)
+          setTimeout(() => setExportSuccess(false), 1000);
       }
   };
 
@@ -76,6 +81,7 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
       onBack={onBackToSetup}
       progressMap={progressMap}
       onExportData={handleExportData}
+      exportSuccess={exportSuccess}
       isAutoPlay={isAutoPlay}
       onToggleAutoPlay={onToggleAutoPlay}
       onViewMetadata={onViewMetadata}

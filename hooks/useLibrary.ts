@@ -14,6 +14,7 @@ export const useLibrary = ({ onMetadataLoaded, onUploadSuccess }: UseLibraryProp
     const [isLoading, setIsLoading] = useState(false);
     const nativeRootPathRef = useRef<string>('');
 
+    // @ts-ignore
     const handleDirectoryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setIsLoading(true);
         try {
@@ -21,12 +22,16 @@ export const useLibrary = ({ onMetadataLoaded, onUploadSuccess }: UseLibraryProp
             let resultMetadata: AppData | undefined;
 
             if (Capacitor.isNativePlatform()) {
-                const result = await FilePicker.pickDirectory();
-                if (result.path) {
-                    nativeRootPathRef.current = result.path;
-                    const scan = await scanNativePath(result.path);
+
+                const isIOS = Capacitor.getPlatform() === "ios";
+                if (isIOS) {
+                    // @ts-ignore
+                    const result = await FilePicker.pickFiles({multiple: true});
+                    const filePaths = result.files.map(f => f.path!).filter((p): p is string => !!p);
+                    const scan = await scanNativePath(filePaths);
                     resultTracks = scan.tracks;
                     resultMetadata = scan.metadata;
+
                 }
             } else if (e.target.files && e.target.files.length > 0) {
                 const files = Array.from(e.target.files) as File[];

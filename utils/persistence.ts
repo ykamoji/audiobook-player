@@ -4,7 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { AppData } from '../types';
 
 export const saveToNativeFilesystem = async (data: AppData, rootPath?: string) => {
-    if (!Capacitor.isNativePlatform()) return;
+    if (!Capacitor.isNativePlatform()) return false;
     try {
         const path = rootPath ? `${rootPath}/metadata.json` : 'metadata.json';
         const options = rootPath 
@@ -13,9 +13,11 @@ export const saveToNativeFilesystem = async (data: AppData, rootPath?: string) =
 
         await Filesystem.writeFile(options);
         console.log('Saved metadata to filesystem');
+        return true
     } catch (e) {
         console.error('Error saving to filesystem', e);
     }
+    return true
 };
 
 export const loadInitialNativeMetadata = async (): Promise<AppData | null> => {
@@ -49,15 +51,24 @@ export const readNativeTextFile = async (path: string): Promise<string> => {
 };
 
 export const downloadWebMetadata = (data: AppData) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonString], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = "metadata.json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+
+    try {
+        const jsonString = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = "metadata.json";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        return true
+    }
+    catch (error) {
+        console.error("error exporting", error)
+        return false
+    }
+
 };

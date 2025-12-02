@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import {Capacitor} from "@capacitor/core";
 
 interface ThumbnailProps {
   file: File;
@@ -9,42 +10,52 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({ file }) => {
     const urlsRef = useRef<Set<string>>(new Set());
 
     useEffect(() => {
-        if (!file) return;
 
-        const url = URL.createObjectURL(file);
-        urlsRef.current.add(url);
-        const id = crypto.randomUUID();
+  if (!file) return;
 
-        setLayers(prev => {
-            // If we have a previous layer, keep it and add the new one.
-            const last = prev[prev.length - 1];
-            return last ? [last, { url, id }] : [{ url, id }];
-        });
+  let url: string;
 
-        // Cleanup old layers after transition
-        const timeout = setTimeout(() => {
-            setLayers(prev => {
-                if (prev.length > 1) {
-                    const old = prev[0];
-                    if (urlsRef.current.has(old.url)) {
-                        URL.revokeObjectURL(old.url);
-                        urlsRef.current.delete(old.url);
-                    }
-                    return [prev[1]]; 
-                }
-                return prev;
-            });
-        }, 1000); // Duration matches CSS animation
+  async function load() {
 
-        return () => clearTimeout(timeout);
-    }, [file]);
+    if (typeof file === "string") {
+      // iOS native path → convert using Filesystem
+      // const cleanPath = decodeURIComponent(file);
 
-    // Final cleanup on unmount
-    useEffect(() => {
-        return () => {
-            urlsRef.current.forEach(u => URL.revokeObjectURL(u));
-        };
-    }, []);
+      url = Capacitor.convertFileSrc(file);
+      urlsRef.current.add(url);
+    } else {
+      // Browser file object
+      url = URL.createObjectURL(file);
+      urlsRef.current.add(url);
+    }
+
+    const id = crypto.randomUUID();
+
+    setLayers(prev => {
+      const last = prev[prev.length - 1];
+      return last ? [last, { url, id }] : [{ url, id }];
+    });
+
+    // Cleanup transition
+    const timeout = setTimeout(() => {
+      setLayers(prev => {
+        if (prev.length > 1) {
+          const old = prev[0];
+          if (urlsRef.current.has(old.url)) {
+            URL.revokeObjectURL(old.url);
+            urlsRef.current.delete(old.url);
+          }
+          return [prev[1]];
+        }
+        return prev;
+      });
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }
+
+  load();
+}, [file]);
 
     // Initial loading state
     if (layers.length === 0) return <div className="w-full h-full bg-gray-800 animate-pulse" />;

@@ -92,7 +92,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
                 ) : (
                     track.coverFile ? (
                         <Thumbnail file={track.coverFile} />
-                    ) : (
+                    ) : track.coverPath ? ( <Thumbnail file={track.coverPath} /> ) : (
                         <>
                             <MusicIcon className="w-8 h-8 z-10 text-gray-500 group-hover:text-white" />
                             {isCompleted && <div className="absolute inset-0 bg-audible-orange/20 z-0"></div>}

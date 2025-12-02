@@ -14,6 +14,7 @@ export const loadTrackMedia = async (track: Track): Promise<{
     if (track.audioFile) {
         audioUrl = URL.createObjectURL(track.audioFile);
         coverUrl = track.coverFile ? URL.createObjectURL(track.coverFile) : null;
+
     } else if (track.audioPath) {
         audioUrl = Capacitor.convertFileSrc(track.audioPath);
         if (track.coverPath) {

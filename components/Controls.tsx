@@ -42,7 +42,7 @@ export const Controls: React.FC<ControlsProps> = ({
   hasPrevious
 }) => {
   return (
-    <div className="flex flex-col gap-2 w-full max-w-lg mx-auto relative">
+    <div className="flex flex-col gap-2 w-full max-w-lg mx-auto relative" style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 30px)`}}>
       {/* Progress Bar */}
       <div className="group relative w-full h-3 flex items-center cursor-pointer">
         <input
@@ -82,14 +82,6 @@ export const Controls: React.FC<ControlsProps> = ({
           <ChaptersIcon className="w-6 h-6" />
         </button>
 
-        {/* Rewind 10s */}
-        <button
-          onClick={onSkipBackward}
-          className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
-        >
-          <Rewind10Icon className="w-6 h-6" />
-        </button>
-
         {/* Previous Button */}
         <button
           onClick={onPrevious}
@@ -97,6 +89,14 @@ export const Controls: React.FC<ControlsProps> = ({
           className="w-10 h-10 flex items-center justify-center text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <SkipBackIcon className="w-6 h-6" />
+        </button>
+
+         {/* Rewind 10s */}
+        <button
+          onClick={onSkipBackward}
+          className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+        >
+          <Rewind10Icon className="w-6 h-6" />
         </button>
 
         {/* Play Button */}
@@ -107,6 +107,14 @@ export const Controls: React.FC<ControlsProps> = ({
           {isPlaying ? <PauseIcon className="w-6 h-6" /> : <PlayIcon className="w-6 h-6 ml-0" />}
         </button>
 
+         {/* Forward 10s */}
+        <button
+          onClick={onSkipForward}
+          className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+        >
+          <Forward10Icon className="w-6 h-6" />
+        </button>
+
         {/* Next Button */}
         <button
           onClick={onNext}
@@ -114,14 +122,6 @@ export const Controls: React.FC<ControlsProps> = ({
           className="w-10 h-10 flex items-center justify-center text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <SkipForwardIcon className="w-6 h-6" />
-        </button>
-
-        {/* Forward 10s */}
-        <button
-          onClick={onSkipForward}
-          className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
-        >
-          <Forward10Icon className="w-6 h-6" />
         </button>
 
         {/* Metadata Button (Right aligned absolute) */}
