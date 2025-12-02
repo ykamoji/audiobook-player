@@ -24,7 +24,7 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, allTracks,
 
             if (t?.coverFile) {
                 images.push(t.coverFile); // now supports File or string
-            }else{
+            }else if(t?.coverPath) {
                 images.push(Capacitor.convertFileSrc(t.coverPath))
             }
             

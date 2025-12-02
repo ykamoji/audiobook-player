@@ -237,7 +237,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
             onClick={() => setShowChapters(false)}
         />
         {/* Bottom Sheet */}
-          <SlideWindow open={showChapters} onClose={() => setShowChapters(false)} side="bottom" height="50dvh">
+          <SlideWindow open={showChapters} onClose={() => setShowChapters(false)} side="bottom" height="40dvh">
             <div className="bg-[#1a1a1a] rounded-t-3xl z-50 border-t border-white/10 flex flex-col h-full">
             <div className="flex items-center justify-between p-4 border-b border-white/5">
                 <div className="flex items-center gap-2">

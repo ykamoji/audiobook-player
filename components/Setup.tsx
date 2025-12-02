@@ -78,20 +78,18 @@ export const Setup: React.FC<SetupProps> = ({
         </div>
 
         {/* Continue to Library Button - Always Visible */}
-        <div 
-        onClick={onContinueToLibrary}
-        className="
-            group cursor-pointer p-6 rounded-2xl
-            transition-all duration-300 flex items-center justify-center gap-4
-        "
-        >
-        <div className="flex flex-col items-center gap-4 text-center">
-            <div className="p-4 rounded-full no bg-audible-orange/10 group-hover:scale-110 transition-transform duration-300">
-                <LibraryIcon className="w-10 h-10 text-audible-orange" />
-            </div>
-            <h3 className="font-semibold text-xl text-white">Library</h3>
-        </div>
-        </div>
+        {/*<div */}
+        {/*onClick={onContinueToLibrary}*/}
+        {/*className="*/}
+        {/*    group cursor-pointer p-6 rounded-2xl*/}
+        {/*    transition-all duration-300 flex items-center justify-center gap-4">*/}
+        {/*<div className="flex flex-col items-center gap-4 text-center">*/}
+        {/*    <div className="p-4 rounded-full no bg-audible-orange/10 group-hover:scale-110 transition-transform duration-300">*/}
+        {/*        <LibraryIcon className="w-10 h-10 text-audible-orange" />*/}
+        {/*    </div>*/}
+        {/*    <h3 className="font-semibold text-xl text-white">Library</h3>*/}
+        {/*</div>*/}
+        {/*</div>*/}
       </div>
     </div>
   );

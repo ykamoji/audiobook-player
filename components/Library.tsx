@@ -19,7 +19,8 @@ interface LibraryProps {
   allTracks: Track[]; // The source of truth for file objects
   playlists: Playlist[];
   onSelectTrack: (track: Track, index: number, specificPlaylist?: Track[]) => void;
-  onBack: () => void;
+  // onBack: () => void;
+  activeTab: string,
   progressMap: Record<string, ProgressData>;
   onCreatePlaylist: (name: string, initialTracks: Track[]) => void;
   onAddToPlaylist: (playlistId: string, track: Track) => void;
@@ -43,7 +44,8 @@ export const Library: React.FC<LibraryProps> = ({
   allTracks, 
   playlists,
   onSelectTrack, 
-  onBack, 
+  // onBack,
+  activeTab,
   progressMap,
   onCreatePlaylist,
   onAddToPlaylist,
@@ -58,7 +60,7 @@ export const Library: React.FC<LibraryProps> = ({
   onToggleAutoPlay,
   onViewMetadata
 }) => {
-  const [activeTab, setActiveTab] = useState<'titles' | 'playlists'>('titles');
+
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   
   // Selection Mode State
@@ -114,6 +116,11 @@ export const Library: React.FC<LibraryProps> = ({
 
   // --- Derived State for Selection Logic ---
   const currentListTracks = useMemo(() => {
+
+    if(activeTab === 'titles' && selectedPlaylistId)  {
+        setSelectedPlaylistId(prevState => !prevState)
+    }
+
     if (selectedPlaylistId) {
         const playlist = playlists.find(p => p.id === selectedPlaylistId);
         if (!playlist) return [];
@@ -469,30 +476,6 @@ export const Library: React.FC<LibraryProps> = ({
               )}
           </div>
       )}
-
-        {!selectedPlaylistId && (
-        <div className="pb-2 pt-2 ps-4 flex items-center justify-around flex-shrink-0" style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 30px)`}}>
-            <div className="flex justify-around gap-6">
-                <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-                    <span className="text-lg font-bold pb-1 transition-colors ">
-                        Sync
-                    </span>
-                </button>
-                <button
-                    onClick={() => setActiveTab('titles')}
-                    className={`text-lg font-bold pb-1 transition-colors ${activeTab === 'titles' ? 'text-white border-b-2 border-audible-orange' : 'text-gray-500 hover:text-gray-300'}`}
-                >
-                    Library
-                </button>
-                <button
-                    onClick={() => setActiveTab('playlists')}
-                    className={`text-lg font-bold pb-1 transition-colors ${activeTab === 'playlists' ? 'text-white border-b-2 border-audible-orange' : 'text-gray-500 hover:text-gray-300'}`}
-                >
-                    Playlists
-                </button>
-            </div>
-        </div>
-        )}
 
         <LibraryModals
             showAddModal={showAddModal}

@@ -10,6 +10,7 @@ interface LibraryContainerProps {
   playlists: Playlist[];
   progressMap: Record<string, ProgressData>;
   isAutoPlay: boolean;
+  activeTab:string,
   
   // Actions
   // onSetTracks: (tracks: Track[], metadata?: AppData) => void;
@@ -40,6 +41,7 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
   progressMap,
   isAutoPlay,
   // onSetTracks,
+  activeTab,
   onSelectTrack,
   onBackToSetup,
   onToggleAutoPlay,
@@ -77,7 +79,8 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
       allTracks={allTracks}
       playlists={playlists}
       onSelectTrack={onSelectTrack}
-      onBack={onBackToSetup}
+      // onBack={onBackToSetup}
+      activeTab={activeTab}
       progressMap={progressMap}
       onExportData={handleExportData}
       exportSuccess={exportSuccess}
