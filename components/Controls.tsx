@@ -61,7 +61,7 @@ export const Controls: React.FC<ControlsProps> = ({
         </div>
         {/* Scrubber Knob (Visual only, moves with progress) */}
         <div 
-          className="absolute h-4 w-4 bg-white rounded-full shadow-lg pointer-events-none transition-all duration-100 ease-linear"
+          className="absolute h-4 w-4 bg-white rounded-full pointer-events-none transition-all duration-100 ease-linear"
           style={{ left: `calc(${progress}% - 4px)` }}
         />
       </div>
@@ -102,7 +102,7 @@ export const Controls: React.FC<ControlsProps> = ({
         {/* Play Button */}
         <button
           onClick={onPlayPause}
-          className="w-12 h-12 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-xl shadow-audible-orange/10 z-10"
+          className="w-12 h-12 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-audible-orange/10 z-10"
         >
           {isPlaying ? <PauseIcon className="w-6 h-6" /> : <PlayIcon className="w-6 h-6 ml-0" />}
         </button>

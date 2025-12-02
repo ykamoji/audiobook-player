@@ -59,7 +59,6 @@ export const useLibrary = ({ onMetadataLoaded, onUploadSuccess }: UseLibraryProp
 
     return {
         allTracks,
-        setAllTracks,
         isLoading,
         nativeRootPath: nativeRootPathRef.current,
         handleDirectoryUpload

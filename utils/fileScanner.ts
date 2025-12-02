@@ -1,7 +1,6 @@
 
-import { Filesystem } from '@capacitor/filesystem';
+import { Filesystem, Encoding } from '@capacitor/filesystem';
 import { Track, AppData } from '../types';
-import { Encoding } from '@capacitor/filesystem';
 import {Capacitor} from "@capacitor/core";
 
 const AUDIO_EXTS = ['.mp3', '.wav', '.aac', '.m4a', '.ogg', '.flac'];
@@ -51,7 +50,7 @@ export const scanNativePath = async (
                 subtitleMap.set(cleanName, fullPath);
             } else if (COVER_EXTS.includes(ext)) {
                 const urlpath = Capacitor.convertFileSrc(fullPath);
-                console.log("WHY_NOT", urlpath)
+                // console.log("WHY_NOT", urlpath)
                 coverMap.set(cleanName, urlpath);
             } else if (cleanName === "metadata.json") {
                 try {
@@ -141,7 +140,7 @@ export const scanNativePath = async (
             }
         }
 
-        console.log("WHY_NOT_AGAIN", filename, baseName, path, coverPath)
+        // console.log("WHY_NOT_AGAIN", filename, baseName, path, coverPath)
 
         tracks.push({
             id: crypto.randomUUID(),
@@ -205,7 +204,7 @@ export const scanWebFiles = async (files: File[]): Promise<{ tracks: Track[], me
             }
         }
 
-        console.log("WHY_NOT_AGAIN", audioFile, audioBaseName, coverFile)
+        // console.log("WHY_NOT_AGAIN", audioFile, audioBaseName, coverFile)
 
         return {
             id: crypto.randomUUID(),

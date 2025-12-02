@@ -157,7 +157,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
         {activeMenuTrackId === track.id && (
           <div 
             ref={menuRef}
-            className="absolute right-10 top-10 bg-[#2a2a2a] border border-audible-separator shadow-2xl rounded-lg w-52 py-1 z-20 overflow-hidden animate-fade-in"
+            className="absolute right-10 top-10 bg-[#2a2a2a] border border-audible-separator rounded-lg w-52 py-1 z-20 overflow-hidden animate-fade-in"
           >
             <button 
               className="w-full text-left px-4 py-3 hover:bg-white/10 text-sm flex items-center gap-2"

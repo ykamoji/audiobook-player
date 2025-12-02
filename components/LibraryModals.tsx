@@ -46,7 +46,7 @@ export const LibraryModals: React.FC<LibraryModalsProps> = ({
       {/* Add to Playlist Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-[#2a2a2a] rounded-xl w-full max-w-sm overflow-hidden shadow-2xl border border-white/10">
+          <div className="bg-[#2a2a2a] rounded-xl w-full max-w-sm overflow-hidden border border-white/10">
             <div className="p-4 border-b border-white/10 flex justify-between items-center">
               <h3 className="font-bold text-lg">Add to Playlist</h3>
               <button onClick={() => setShowAddModal(false)} className="text-gray-400 hover:text-white">Close</button>
@@ -99,7 +99,7 @@ export const LibraryModals: React.FC<LibraryModalsProps> = ({
       {/* Create Empty Playlist Modal */}
       {showCreatePlaylistModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-[#2a2a2a] rounded-xl w-full max-w-sm overflow-hidden shadow-2xl border border-white/10 p-4">
+          <div className="bg-[#2a2a2a] rounded-xl w-full max-w-sm overflow-hidden border border-white/10 p-4">
              <h3 className="font-bold text-lg mb-4">Create New Playlist</h3>
              <input 
                 type="text" 
@@ -131,7 +131,7 @@ export const LibraryModals: React.FC<LibraryModalsProps> = ({
       {/* Rename Playlist Modal */}
       {showRenamePlaylistModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-[#2a2a2a] rounded-xl w-full max-w-sm overflow-hidden shadow-2xl border border-white/10 p-4">
+          <div className="bg-[#2a2a2a] rounded-xl w-full max-w-sm overflow-hidden border border-white/10 p-4">
              <h3 className="font-bold text-lg mb-4">Rename Playlist</h3>
              <input 
                 type="text" 

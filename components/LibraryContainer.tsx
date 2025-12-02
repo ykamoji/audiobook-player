@@ -12,7 +12,7 @@ interface LibraryContainerProps {
   isAutoPlay: boolean;
   
   // Actions
-  onSetTracks: (tracks: Track[], metadata?: AppData) => void;
+  // onSetTracks: (tracks: Track[], metadata?: AppData) => void;
   onSelectTrack: (track: Track, index: number, specificPlaylist?: Track[]) => void;
   onBackToSetup: () => void;
   onToggleAutoPlay: () => void;
@@ -39,7 +39,7 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
   playlists,
   progressMap,
   isAutoPlay,
-  onSetTracks,
+  // onSetTracks,
   onSelectTrack,
   onBackToSetup,
   onToggleAutoPlay,

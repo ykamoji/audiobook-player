@@ -7,12 +7,11 @@ const CUES_PER_SEGMENT = 100;
 
 interface UsePlayerProps {
     isAutoPlay: boolean;
-    volume: number;
     progressMap: Record<string, ProgressData>;
     saveProgress: (trackName: string, currentTime: number, duration: number, segmentHistory: Record<number, number>) => void;
 }
 
-export const usePlayer = ({ isAutoPlay, volume, progressMap, saveProgress }: UsePlayerProps) => {
+export const usePlayer = ({ isAutoPlay, progressMap, saveProgress }: UsePlayerProps) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     
     // State
@@ -28,11 +27,6 @@ export const usePlayer = ({ isAutoPlay, volume, progressMap, saveProgress }: Use
     const lastSaveTimeRef = useRef<number>(0);
     const resumeTimeRef = useRef<number>(0);
     const segmentHistoryRef = useRef<Record<number, number>>({});
-
-    // Audio Element Effect: Volume
-    useEffect(() => {
-        if (audioRef.current) audioRef.current.volume = volume;
-    }, [volume]);
 
     // Audio Element Effect: AutoPlay
     useEffect(() => {
@@ -64,6 +58,10 @@ export const usePlayer = ({ isAutoPlay, volume, progressMap, saveProgress }: Use
         const { audioState: newAudioState, subtitleState: newSubtitleState } = await loadTrackMedia(track);
         setAudioState(newAudioState);
         setSubtitleState(newSubtitleState);
+
+        requestAnimationFrame(() => {
+            if (audioRef.current) audioRef.current.load();
+        });
         
         setPlaylist(specificPlaylist);
         setCurrentTrackIndex(specificPlaylist.findIndex(t => t.id === track.id));
@@ -74,13 +72,13 @@ export const usePlayer = ({ isAutoPlay, volume, progressMap, saveProgress }: Use
             const t = audioRef.current.currentTime;
             const d = audioRef.current.duration;
             setCurrentTime(t);
-            
+
             // Determine segment based on CUE index, not time
             let currentSeg = 0;
             if (subtitleState.cues.length > 0) {
                 // Find active cue index
                 const cueIndex = subtitleState.cues.findIndex(c => t >= c.start && t <= c.end);
-                
+
                 // If inside a cue, use it. If not (gap), find the next cue or use previous
                 let targetIndex = cueIndex;
                 if (targetIndex === -1) {
@@ -90,7 +88,7 @@ export const usePlayer = ({ isAutoPlay, volume, progressMap, saveProgress }: Use
                     else if (nextCueIndex === 0) targetIndex = 0;
                     else targetIndex = subtitleState.cues.length - 1; // End of file
                 }
-                
+
                 currentSeg = Math.floor(targetIndex / CUES_PER_SEGMENT);
             }
 
@@ -104,28 +102,53 @@ export const usePlayer = ({ isAutoPlay, volume, progressMap, saveProgress }: Use
     };
 
     const handleLoadedMetadata = () => {
-        if (audioRef.current) {
-            setDuration(audioRef.current.duration);
-            if (resumeTimeRef.current > 0) {
-                audioRef.current.currentTime = resumeTimeRef.current;
-                
-                // Restore segment history key logic on load
-                if (subtitleState.cues.length > 0) {
-                     const cueIndex = subtitleState.cues.findIndex(c => resumeTimeRef.current >= c.start && resumeTimeRef.current <= c.end);
-                     let targetIndex = cueIndex !== -1 ? cueIndex : 0; 
-                     // Simple fallback for load if exact cue miss
-                     if (cueIndex === -1) {
-                        const next = subtitleState.cues.findIndex(c => c.start > resumeTimeRef.current);
-                        targetIndex = next > 0 ? next - 1 : 0;
-                     }
-                     const seg = Math.floor(targetIndex / CUES_PER_SEGMENT);
-                     segmentHistoryRef.current[seg] = resumeTimeRef.current;
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const applyRestoreLogic = () => {
+        setDuration(audio.duration);
+
+        // Restore the resume time AFTER duration is valid
+        if (resumeTimeRef.current > 0) {
+            audio.currentTime = resumeTimeRef.current;
+
+            // Restore segment
+            if (subtitleState.cues.length > 0) {
+                const cueIndex = subtitleState.cues.findIndex(
+                    c => resumeTimeRef.current >= c.start && resumeTimeRef.current <= c.end
+                );
+
+                let targetIndex = cueIndex !== -1 ? cueIndex : 0;
+
+                if (cueIndex === -1) {
+                    const next = subtitleState.cues.findIndex(c => c.start > resumeTimeRef.current);
+                    targetIndex = next > 0 ? next - 1 : 0;
                 }
-                
-                resumeTimeRef.current = 0; 
+
+                const seg = Math.floor(targetIndex / CUES_PER_SEGMENT);
+                segmentHistoryRef.current[seg] = resumeTimeRef.current;
             }
+
+            resumeTimeRef.current = 0;
         }
     };
+
+    // Immediate apply if usable
+    if (audio.duration > 0 && audio.duration !== Infinity) {
+        applyRestoreLogic();
+        return;
+    }
+
+    // Otherwise wait for the real duration
+    const waitForDuration = () => {
+        if (audio.duration > 0 && audio.duration !== Infinity) {
+            audio.removeEventListener("durationchange", waitForDuration);
+            applyRestoreLogic();
+        }
+    };
+
+    audio.addEventListener("durationchange", waitForDuration);
+};
 
     const handleSeek = (percentage: number) => {
         if (audioRef.current && duration > 0) {

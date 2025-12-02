@@ -27,7 +27,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({ data, onClose }) =
       
       {/* Panel */}
       <div 
-        className={`fixed top-0 right-0 bottom-0 w-80 bg-[#1a1a1a] shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-l border-white/10 p-6 flex flex-col ${data ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 bottom-0 w-80 bg-[#1a1a1a] z-50 transform transition-transform duration-300 ease-in-out border-l border-white/10 p-6 flex flex-col ${data ? 'translate-x-0' : 'translate-x-full'}`}
         style={{"paddingTop": `calc(env(safe-area-inset-top) - 15px)`}}
       >
           <div className="flex items-center justify-between mb-8">

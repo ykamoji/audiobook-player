@@ -47,7 +47,7 @@ export const Setup: React.FC<SetupProps> = ({
           className="
             relative overflow-hidden group cursor-pointer
             p-8 border-audible-separator 
-            transition-all duration-300 shadow-2xl
+            transition-all duration-300
           "
         >
           <div className="flex flex-col items-center gap-4 text-center">
@@ -82,7 +82,7 @@ export const Setup: React.FC<SetupProps> = ({
         onClick={onContinueToLibrary}
         className="
             group cursor-pointer p-6 rounded-2xl
-            transition-all duration-300 shadow-lg flex items-center justify-center gap-4
+            transition-all duration-300 flex items-center justify-center gap-4
         "
         >
         <div className="flex flex-col items-center gap-4 text-center">

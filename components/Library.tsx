@@ -267,7 +267,7 @@ export const Library: React.FC<LibraryProps> = ({
                             {showPlaylistMenu && (
                                 <div 
                                     ref={playlistMenuRef}
-                                    className="absolute right-0 top-full mt-2 w-48 bg-[#2a2a2a] border border-audible-separator shadow-2xl rounded-lg overflow-hidden z-20 animate-fade-in"
+                                    className="absolute right-0 top-full mt-2 w-48 bg-[#2a2a2a] border border-audible-separator rounded-lg overflow-hidden z-20 animate-fade-in"
                                 >
                                     <button 
                                         className="w-full text-left px-4 py-3 hover:bg-white/10 text-sm text-red-400 flex items-center gap-2"

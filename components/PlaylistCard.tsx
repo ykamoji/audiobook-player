@@ -61,7 +61,7 @@ export const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, allTracks,
             className="group cursor-pointer w-full flex flex-col gap-4 mb-2"
         >
             {/* Image Container */}
-            <div className="relative w-full aspect-[2/1] rounded-xl overflow-hidden shadow-2xl transition-all transform group-hover:scale-[1.005] bg-gray-800">
+            <div className="relative w-full aspect-[2/1] rounded-xl overflow-hidden transition-all transform group-hover:scale-[1.005] bg-gray-800">
                 <div className="absolute inset-0 bg-gray-800">
                     {currentCover ? (
                         <Thumbnail file={currentCover} />

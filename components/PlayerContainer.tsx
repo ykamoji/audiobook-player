@@ -83,20 +83,20 @@ export const PlayerContainer: React.FC<PlayerContainerProps> = ({
   }, [subtitleState.cues, currentSegmentIndex]);
 
   // 4. Calculate Segment Time Bounds
-  const { segmentDuration, segmentCurrentTime } = useMemo(() => {
-      if (currentSegmentCues.length === 0) return { segmentDuration: 0, segmentCurrentTime: 0 };
-      
-      const firstCue = currentSegmentCues[0];
-      const lastCue = currentSegmentCues[currentSegmentCues.length - 1];
-      
-      // We use the start of the first cue as the "0" point for the segment display
-      const segStart = firstCue.start;
-      const segEnd = lastCue.end;
-      const duration = segEnd - segStart;
-      const current = Math.max(0, currentTime - segStart);
-      
-      return { segmentDuration: duration, segmentCurrentTime: current };
-  }, [currentSegmentCues, currentTime]);
+  // const { segmentDuration, segmentCurrentTime } = useMemo(() => {
+  //     if (currentSegmentCues.length === 0) return { segmentDuration: 0, segmentCurrentTime: 0 };
+  //
+  //     const firstCue = currentSegmentCues[0];
+  //     const lastCue = currentSegmentCues[currentSegmentCues.length - 1];
+  //
+  //     // We use the start of the first cue as the "0" point for the segment display
+  //     const segStart = firstCue.start;
+  //     const segEnd = lastCue.end;
+  //     const duration = segEnd - segStart;
+  //     const current = Math.max(0, currentTime - segStart);
+  //
+  //     return { segmentDuration: duration, segmentCurrentTime: current };
+  // }, [currentSegmentCues, currentTime]);
 
   const totalSegments = subtitleState.cues.length > 0 
       ? Math.ceil(subtitleState.cues.length / CUES_PER_SEGMENT) 
@@ -113,8 +113,8 @@ export const PlayerContainer: React.FC<PlayerContainerProps> = ({
       currentCueIndex={relativeCueIndex}
       currentTime={currentTime}
       duration={duration}
-      segmentCurrentTime={segmentCurrentTime}
-      segmentDuration={segmentDuration}
+      // segmentCurrentTime={segmentCurrentTime}
+      // segmentDuration={segmentDuration}
       currentSegmentIndex={currentSegmentIndex}
       totalSegments={totalSegments}
       onSegmentChange={onSegmentChange}

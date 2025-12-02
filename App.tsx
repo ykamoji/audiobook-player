@@ -18,7 +18,7 @@ function App() {
   
   // --- Settings ---
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  const [volume, setVolume] = useState(1);
+  // const [volume, setVolume] = useState(1);
   const [metadataPanelData, setMetadataPanelData] = useState<MetadataPanelData | null>(null);
 
   // --- Custom Hooks ---
@@ -27,30 +27,34 @@ function App() {
 
   // Handlers for Library
   const applyMetadata = (data: AppData) => {
-    if(localStorage.getItem("system_metadata") === 'true')
+    if(localStorage.getItem("system_metadata") === 'true'){
+        console.log("Metadata already loaded from system !")
         return
+    }
     if (data.progress) {
         setProgressMap(prev => {
             const newMap = {...prev, ...data.progress};
             localStorage.setItem('audiobook_progress', JSON.stringify(newMap));
+            console.log("Setting progress from metadata  ", JSON.stringify(newMap))
             return newMap;
         });
     }
     if (data.playlists) playlistManager.setSavedPlaylists(data.playlists);
     if (data.settings) {
-        if (data.settings.volume !== undefined) setVolume(data.settings.volume);
+        // if (data.settings.volume !== undefined) setVolume(data.settings.volume);
         if (data.settings.isAutoPlay !== undefined) setIsAutoPlay(data.settings.isAutoPlay);
     }
+
+    console.log("Loaded data", data)
   };
 
-  const { allTracks, setAllTracks, isLoading, nativeRootPath, handleDirectoryUpload } = useLibrary({
+  const { allTracks, isLoading, nativeRootPath, handleDirectoryUpload } = useLibrary({
     onMetadataLoaded: applyMetadata,
     onUploadSuccess: () => setView('library')
   });
 
   const player = usePlayer({
       isAutoPlay,
-      volume,
       progressMap,
       saveProgress
   });
@@ -62,13 +66,12 @@ function App() {
         reloadProgress();
         const storedPlaylists = localStorage.getItem('audiobook_playlists');
         if (storedPlaylists) playlistManager.setSavedPlaylists(JSON.parse(storedPlaylists));
-        const storedVolume = localStorage.getItem('audiobook_volume');
-        if (storedVolume) setVolume(parseFloat(storedVolume));
         const storedAutoPlay = localStorage.getItem('audiobook_autoplay');
         if (storedAutoPlay) setIsAutoPlay(JSON.parse(storedAutoPlay));
 
         const nativeData = await loadInitialNativeMetadata();
         if (nativeData) {
+            console.log("Loaded Data", nativeData)
             applyMetadata(nativeData);
             localStorage.setItem("system_metadata", "true");
         }
@@ -83,10 +86,9 @@ function App() {
 
   useEffect(() => {
     if (isStorageLoaded) {
-       localStorage.setItem('audiobook_volume', volume.toString());
        localStorage.setItem('audiobook_autoplay', JSON.stringify(isAutoPlay));
     }
-  }, [volume, isAutoPlay, isStorageLoaded]);
+  }, [isAutoPlay, isStorageLoaded]);
 
 
   // --- Metadata Logic ---
@@ -119,6 +121,7 @@ function App() {
         src={player.audioState.url || undefined}
         onTimeUpdate={player.onTimeUpdate}
         onLoadedMetadata={player.onLoadedMetadata}
+        onDurationChange={player.onLoadedMetadata}
         onEnded={player.onEnded}
       />
 
@@ -139,13 +142,12 @@ function App() {
             playlists={playlistManager.savedPlaylists}
             progressMap={progressMap}
             isAutoPlay={isAutoPlay}
-            onSetTracks={(tracks, meta) => { setAllTracks(tracks); if(meta) applyMetadata(meta); }}
+            // onSetTracks={(tracks, meta) => { setAllTracks(tracks); if(meta) applyMetadata(meta); }}
             onSelectTrack={playTrackWrapper}
             onBackToSetup={() => { reloadProgress(); setView('setup'); }}
             onToggleAutoPlay={() => setIsAutoPlay(!isAutoPlay)}
             onViewMetadata={handleOpenMetadata}
             playlistActions={playlistManager}
-            volume={volume}
             nativeRootPath={nativeRootPath}
         />
       )}

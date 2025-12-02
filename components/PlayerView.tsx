@@ -11,10 +11,7 @@ interface PlayerViewProps {
   currentCueIndex: number;
   currentTime: number; // Absolute time (for subtitle click)
   duration: number;    // Absolute duration
-  
-  // Segment Props
-  segmentCurrentTime: number;
-  segmentDuration: number;
+
   currentSegmentIndex: number;
   totalSegments: number;
   onSegmentChange: (index: number) => void;
@@ -42,8 +39,6 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
   currentCueIndex,
   currentTime,
   duration,
-  segmentCurrentTime,
-  segmentDuration,
   currentSegmentIndex,
   totalSegments,
   onSegmentChange,
@@ -140,7 +135,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
         >
           <ChevronLeftIcon />
         </button>
-        <div className="ml-4 flex-1 min-w-0 drop-shadow-md">
+        <div className="ml-4 flex-1 min-w-0">
             <h2 className="font-semibold text-xs text-audible-orange uppercase tracking-widest">Now Playing</h2>
             <p className="font-bold truncate text-sm text-gray-200">{audioState.name}</p>
         </div>
@@ -149,7 +144,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
       {/* Fixed Cover Image Area */}
       <div className="mt-14 w-full flex-none flex flex-col justify-center items-center h-[45vh] min-h-[300px] max-h-[600px] z-10 transition-all duration-300">
           {audioState.coverUrl ? (
-              <div className="relative h-[85%] aspect-square rounded-lg shadow-2xl overflow-hidden">
+              <div className="relative h-[85%] aspect-square rounded-lg overflow-hidden">
                   <img 
                       src={audioState.coverUrl} 
                       alt={audioState.name} 
@@ -158,7 +153,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                   <div className="absolute inset-0 ring-1 ring-white/10 rounded-lg"></div>
               </div>
           ) : (
-              <div className="h-[70%] aspect-square bg-gray-800 rounded-lg flex items-center justify-center shadow-2xl">
+              <div className="h-[70%] aspect-square bg-gray-800 rounded-lg flex items-center justify-center">
                   <span className="text-gray-600 font-bold text-4xl select-none">
                       {audioState.name.substring(0, 2).toUpperCase()}
                   </span>
@@ -194,7 +189,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                 <p className={`
                     text-xl md:text-2xl leading-relaxed text-center cursor-pointer font-cabin tracking-wide
                     transition-colors duration-500
-                    ${isActive ? 'text-audible-orange font-bold drop-shadow-md' : 'text-gray-400 font-semibold hover:text-gray-300'}
+                    ${isActive ? 'text-audible-orange font-bold' : 'text-gray-400 font-semibold hover:text-gray-300'}
                 `}>
                     {cue.text}
                 </p>
