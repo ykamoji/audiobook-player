@@ -1,14 +1,25 @@
+import { RefObject } from "react";
 import { useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 
-export function useSwipeDown(onClose: () => void, threshold = 120) {
+export function useSwipeDown(onClose: () => void, scrollRef: RefObject<HTMLElement>, threshold = 120) {
   const [{ y }, api] = useSpring(() => ({
     y: 0,
     config: { tension: 120, friction: 30, mass: 1.5 }
   }));
 
   const bind = useDrag(
-    ({ last, movement: [, my], velocity: [, vy], cancel }) => {
+    ({ last, movement: [, my], velocity: [, vy], cancel, event, first }) => {
+
+      const scrollEl = scrollRef.current;
+      const target = event.target as HTMLElement;
+
+      const startedInsideScroll = scrollEl && scrollEl.contains(target);
+
+      if (first && startedInsideScroll && scrollEl!.scrollTop > 0) {
+        return cancel();
+      }
+
       if (my < 0) return cancel();
 
       if (!last) {
@@ -27,15 +38,10 @@ export function useSwipeDown(onClose: () => void, threshold = 120) {
           },
           onRest: () => {
             onClose();
-            // api.set({ y: 0 });
           }
         });
       } else {
-        // Snap back
-        api.start({
-          y: 0,
-          config: { tension: 200, friction: 25 }
-        });
+        api.start({ y: 0 });
       }
     },
     { from: () => [0, y.get()] }

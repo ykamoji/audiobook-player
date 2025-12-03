@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Controls } from './Controls';
-import { ChevronLeftIcon, XIcon, ListIcon } from './Icons';
+import {ChevronLeftIcon, XIcon, ListIcon, ChevronDownIcon} from './Icons';
 import { AudioFileState, SubtitleFileState, SubtitleCue } from '../types';
 import { SlideWindow } from "./SlideWindow.tsx";
 import { animated } from "@react-spring/web";
@@ -128,7 +128,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const { bind: bindPlayerSwipe, y: playerY, api: playerApi } = useSwipeDown(onBack);
+  const { bind: bindPlayerSwipe, y: playerY, api: playerApi } = useSwipeDown(onBack, subtitleContainerRef);
 
     useEffect(() => {
          playerApi.set({ y: 0 });
@@ -138,6 +138,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
   return (
     // <div className="relative h-full overflow-hidden no-scrollbar flex flex-col ">
     //    Header (Absolute)
+      <>
         <animated.div
             {...bindPlayerSwipe()}
             style={{y: playerY}}
@@ -148,7 +149,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
               onClick={onBack}
               className="p-2 text-white/90 hover:text-white transition-colors bg-black/20 rounded-full backdrop-blur-sm"
             >
-              <ChevronLeftIcon />
+              <ChevronDownIcon />
             </button>
             <div className="ml-4 flex-1 min-w-0">
                 <h2 className="font-semibold text-xs text-audible-orange uppercase tracking-widest">Now Playing</h2>
@@ -222,7 +223,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
 
 
       {/* Player Controls (Bottom Sheet) */}
-      <div className="glass bottom-0 left-0 right-0 p-4 pt-3 pb-4 rounded-t-3xl border-t border-white/5 z-20" style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 75px)`}}>
+      <div className="glass bottom-0 left-0 right-0 p-4 pt-3 pb-4 border-t border-white/5 z-20" style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 100px)`}}>
         <Controls
           isPlaying={isPlaying}
           onPlayPause={onTogglePlay}
@@ -241,12 +242,11 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           hasPrevious={hasPrevious}
         />
       </div>
-      
+
       {/* Aesthetic background ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-audible-orange/5 rounded-full blur-[120px] pointer-events-none z-0" />
 
       {/* Chapters Slide-Up Panel */}
-      <>
         {/* Backdrop */}
         <div 
             className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ${showChapters ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
@@ -300,8 +300,8 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
               </div>
           </div>
           </SlideWindow>
-      </>
         </animated.div>
+        </>
     // </div>
   );
 };

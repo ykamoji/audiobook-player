@@ -4,6 +4,7 @@ import { LibraryContainer } from './components/LibraryContainer';
 import { PlayerContainer } from './components/PlayerContainer';
 import { MetadataPanel, MetadataPanelData } from './components/MetadataPanel';
 import { Track, AppData } from './types';
+import { useSpring, animated } from "@react-spring/web";
 import { loadInitialNativeMetadata } from './utils/persistence';
 import { usePlaylistManager } from './hooks/usePlaylistManager';
 import { useProgressManager } from './hooks/useProgressManager';
@@ -108,6 +109,12 @@ function App() {
       setPlayerMode('full');
   };
 
+  const miniStyle = useSpring({
+      opacity: playerMode === "mini" ? 1 : 0,
+      y: playerMode === "mini" ? 0 : 20,
+      config: { tension: 200, friction: 22 }
+  });
+
   return (
       <>
           <div
@@ -184,12 +191,16 @@ function App() {
               onClose={() => setMetadataPanelData(null)}
           />
           <div
-              className="fixed bottom-0 w-full pb-1 pt-2 ps-4 z-50 bg-black"
+              className="fixed bottom-0 w-full pb-1 z-50 bg-black"
               style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 20px)`}}>
-              { playerMode == 'mini' && <div className="">
+              <animated.div style={{
+                    opacity: miniStyle.opacity,
+                    transform: miniStyle.y.to(v => `translateY(${v}px)`)
+                  }}
+                  className="flex justify-around">
                   MINI MODE
-              </div>}
-              <div className="flex items-center justify-center gap-6">
+              </animated.div>
+              <div className="flex items-center justify-center gap-x-9 pt-1">
                   <button onClick={() => setView('setup')}
                           className={`flex items-center gap-2 text-gray-400 hover:text-white border-b-2 transition-colors ${view === 'setup' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
                             <span className="text-lg font-bold pb-1 transition-colors ">

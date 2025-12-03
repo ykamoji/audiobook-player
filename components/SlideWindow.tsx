@@ -99,7 +99,7 @@ export const SlideWindow: FC<SlideWindowProps> = ({
                 height: side === "bottom" ? height : "100%",
             width: side === "right" ? width : "100%",
         }}
-            className={`${baseClass} z-50 rounded-t-3xl border-white/10 bg-[#1a1a1a] overflow-hidden ${className}`}
+            className={`${baseClass} z-50 border-white/10 bg-[#1a1a1a] overflow-hidden ${className}`}
         >
             {children}
         </animated.div>
