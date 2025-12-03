@@ -19,6 +19,7 @@ export const useLibrary = ({ onMetadataLoaded, onUploadSuccess }: UseLibraryProp
         setIsLoading(true);
         try {
             let resultTracks: Track[] = [];
+            let resultColorMap: Map<string, string>
             let resultMetadata: AppData | undefined;
 
             if (Capacitor.isNativePlatform()) {
@@ -31,6 +32,7 @@ export const useLibrary = ({ onMetadataLoaded, onUploadSuccess }: UseLibraryProp
                     const scan = await scanNativePath(filePaths);
                     resultTracks = scan.tracks;
                     resultMetadata = scan.metadata;
+                    resultColorMap = scan.colorMap
 
                 }
             } else if (e.target.files && e.target.files.length > 0) {
@@ -39,10 +41,12 @@ export const useLibrary = ({ onMetadataLoaded, onUploadSuccess }: UseLibraryProp
                 const scan = await scanWebFiles(files);
                 resultTracks = scan.tracks;
                 resultMetadata = scan.metadata;
+                resultColorMap = scan.colorMap
             }
 
             if (resultMetadata) onMetadataLoaded(resultMetadata);
             setAllTracks(resultTracks);
+            localStorage.setItem('colorMap', JSON.stringify(resultColorMap))
             
             if (resultTracks.length > 0) {
                 onUploadSuccess();

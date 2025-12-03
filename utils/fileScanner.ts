@@ -25,23 +25,22 @@ const sortTracks = (tracks: Track[]) => {
 
 export const scanNativePath = async (
     rootInput: string | string[]
-): Promise<{ tracks: Track[]; metadata?: AppData }> => {
+): Promise<{ tracks: Track[]; metadata?: AppData; colorMap: Map<string, string> }> => {
     const audioMap = new Map<string, string>();
     const subtitleMap = new Map<string, string>();
     const coverMap = new Map<string, string>();
+    let colorMap: Map<string,string> | undefined = undefined;
     let foundMetadata: AppData | undefined = undefined;
 
     const isArrayInput = Array.isArray(rootInput);
 
-    /* ============================================================
-       MODE 1: iOS multi-file selection  → rootInput = string[]
-       ============================================================ */
     if (isArrayInput) {
         const filePaths = rootInput as string[];
 
         for (const fullPath of filePaths) {
             const filename = fullPath.split("/").pop()!;
             const cleanName = decodeURIComponent(filename);
+
             const ext = getExtension(cleanName);
 
             if (AUDIO_EXTS.includes(ext)) {
@@ -66,53 +65,24 @@ export const scanNativePath = async (
                     console.error("Error parsing native metadata.json", e);
                 }
             }
+            else if(cleanName === "colorMap.json"){
+                try {
+                    const content = await Filesystem.readFile({
+                        path: fullPath,
+                        encoding: Encoding.UTF8,
+                    });
+                    const text =
+                        typeof content.data === "string"
+                            ? content.data
+                            : JSON.stringify(content.data);
+                    colorMap = JSON.parse(text);
+                } catch (e) {
+                    console.error("Error parsing native colorMap.json", e);
+                }
+            }
         }
 
-    } else {
-        /* ============================================================
-           MODE 2: DIRECTORY SCAN → Android
-           ============================================================ */
-        const rootPath = rootInput as string;
-
-        const scanDir = async (currentPath: string) => {
-            try {
-                const result = await Filesystem.readdir({ path: currentPath });
-                for (const file of result.files) {
-                    const separator = currentPath.endsWith('/') ? '' : '/';
-                    const fullPath = `${currentPath}${separator}${file.name}`;
-
-                    if (file.type === "directory") {
-                        await scanDir(fullPath);
-                    } else {
-                        const ext = getExtension(file.name);
-                        if (AUDIO_EXTS.includes(ext)) {
-                            audioMap.set(file.name, fullPath);
-                        } else if (SUBTITLE_EXTS.includes(ext)) {
-                            subtitleMap.set(file.name, fullPath);
-                        } else if (COVER_EXTS.includes(ext)) {
-                            coverMap.set(file.name, fullPath);
-                        } else if (file.name === "metadata.json") {
-                            try {
-                                const content = await Filesystem.readFile({
-                                    path: fullPath,
-                                    encoding: Encoding.UTF8,
-                                });
-                                const text = typeof content.data === "string"  ? content.data  : JSON.stringify(content.data);
-                                foundMetadata = JSON.parse(text);
-                            } catch (e) {
-                                console.error("Error parsing metadata.json", e);
-                            }
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error("Error reading native directory", currentPath, e);
-            }
-        };
-
-        await scanDir(rootPath);
     }
-
     /* ============================================================
        Build Track List
        ============================================================ */
@@ -148,11 +118,12 @@ export const scanNativePath = async (
         });
     });
 
-    return { tracks: sortTracks(tracks), metadata: foundMetadata };
+    return { tracks: sortTracks(tracks), metadata: foundMetadata, colorMap: colorMap };
 };
 
-export const scanWebFiles = async (files: File[]): Promise<{ tracks: Track[], metadata?: AppData }> => {
+export const scanWebFiles = async (files: File[]): Promise<{ tracks: Track[], metadata?: AppData, colorMap?:Map<string,string> }> => {
     let foundMetadata: AppData | undefined = undefined;
+    let colorMap: Map<string,string> | undefined = undefined;
     const audioFiles: File[] = [];
     const subtitleMap = new Map<string, File>();
     const coverMap = new Map<string, File>();
@@ -165,6 +136,15 @@ export const scanWebFiles = async (files: File[]): Promise<{ tracks: Track[], me
                 foundMetadata = JSON.parse(text);
             } catch (err) {
                 console.error("Failed to parse metadata.json", err);
+            }
+            continue;
+        }
+        else if(file.name === 'colorMap.json'){
+            try {
+                const text = await file.text();
+                colorMap = JSON.parse(text);
+            } catch (err) {
+                console.error("Failed to parse colorMap.json", err);
             }
             continue;
         }
@@ -210,5 +190,5 @@ export const scanWebFiles = async (files: File[]): Promise<{ tracks: Track[], me
         };
     });
 
-    return { tracks: sortTracks(tracks), metadata: foundMetadata };
+    return { tracks: sortTracks(tracks), metadata: foundMetadata, colorMap: colorMap };
 };

@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import { Track, Playlist, ProgressData } from '../types';
 import { MusicIcon, MoreHorizontalIcon, CheckCircleIcon, CircleIcon, PlusIcon, InfoIcon } from './Icons';
 import { Thumbnail } from './Thumbnail';
+import { createPortal } from "react-dom";
 
 interface TrackRowProps {
   track: Track;
@@ -21,6 +22,50 @@ interface TrackRowProps {
   onViewMetadata: (track: Track) => void;
   onRemoveFromPlaylist: (trackName: string) => void;
   style?: React.CSSProperties;
+}
+
+function ContextMenuPortal({ anchor, children, onClose }) {
+  const elRef = useRef(document.createElement("div"));
+
+  useEffect(() => {
+    const el = elRef.current;
+    document.body.appendChild(el);
+    return () => document.body.removeChild(el);
+  }, []);
+
+  if (!anchor) return null;
+
+  const menuWidth = 208; // 52 * 4px
+  const menuHeight = 100; // approx height
+  const padding = 8;
+
+  let top = anchor.bottom + padding;
+  let left = anchor.right - menuWidth;
+
+  // Flip upward if clipped
+  if (top + menuHeight > window.innerHeight) {
+    top = anchor.top - menuHeight - padding;
+  }
+
+  return createPortal(
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 z-[999] bg-transparent"
+        onClick={onClose}
+      />
+
+      {/* Menu */}
+      <div
+        className="fixed z-[1000] bg-[#2a2a2a] border border-audible-separator rounded-lg w-52 py-1 shadow-lg animate-fade-in"
+        style={{ top, left }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </>,
+    elRef.current
+  );
 }
 
 export const TrackRow: React.FC<TrackRowProps> = ({
@@ -63,6 +108,8 @@ export const TrackRow: React.FC<TrackRowProps> = ({
   }, [activeMenuTrackId, track.id, onOpenMenu]);
 
 
+  const [menuRect, setMenuRect] = React.useState<DOMRect | null>(null);
+
   return (
       <div 
         style={style}
@@ -71,6 +118,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
       <div 
         className={`group relative flex items-center gap-4 p-3 rounded-lg transition-colors h-full ${isSelected ? 'bg-audible-orange/10' : 'hover:bg-audible-card'}`}
         onClick={() => {
+            if (activeMenuTrackId === track.id) return;
             if (isSelectionMode) {
                 onToggleSelection(track.id);
             } else {
@@ -146,8 +194,15 @@ export const TrackRow: React.FC<TrackRowProps> = ({
             className="p-2 text-gray-500 hover:text-white transition-colors relative z-10"
             onClick={(e) => {
                 e.stopPropagation();
-                onOpenMenu(activeMenuTrackId === track.id ? null : track.id);
-            }}
+
+                if (activeMenuTrackId === track.id) {
+                  onOpenMenu(null);
+                  setMenuRect(null);
+                } else {
+                  onOpenMenu(track.id);
+                  setMenuRect(e.currentTarget.getBoundingClientRect());  // ⭐ REQUIRED
+                }
+              }}
             >
             <MoreHorizontalIcon />
             </button>
@@ -155,33 +210,37 @@ export const TrackRow: React.FC<TrackRowProps> = ({
 
         {/* Context Menu Dropdown */}
         {activeMenuTrackId === track.id && (
-          <div 
-            ref={menuRef}
-            className="absolute right-10 top-10 bg-[#2a2a2a] border border-audible-separator rounded-lg w-52 py-1 z-20 overflow-hidden animate-fade-in"
+          <ContextMenuPortal
+            anchor={menuRect}
+            onClose={() => {
+              onOpenMenu(null);
+              setMenuRect(null);
+            }}
           >
-            <button 
+            <button
               className="w-full text-left px-4 py-3 hover:bg-white/10 text-sm flex items-center gap-2"
               onClick={(e) => {
-                  e.stopPropagation();
-                  onAddToPlaylist(track);
+                e.stopPropagation();
+                onAddToPlaylist(track);
+                onOpenMenu(null);
               }}
             >
               <PlusIcon className="w-4 h-4" />
               Add to Playlist
             </button>
-            
-            <button 
+
+            <button
               className="w-full text-left px-4 py-3 hover:bg-white/10 text-sm flex items-center gap-2"
               onClick={(e) => {
-                  e.stopPropagation();
-                  onViewMetadata(track);
-                  onOpenMenu(null);
+                e.stopPropagation();
+                onViewMetadata(track);
+                onOpenMenu(null);
               }}
             >
               <InfoIcon className="w-4 h-4" />
               View Metadata
             </button>
-          </div>
+          </ContextMenuPortal>
         )}
       </div>
       </div>

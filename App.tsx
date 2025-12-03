@@ -15,14 +15,13 @@ import { MiniPlayer } from "./components/MiniPlayer.tsx";
 function App() {
   // --- Global View State ---
   const [view, setView] = useState<'setup' | 'titles' | 'playlists' >('setup');
-
   const [playerMode, setPlayerMode] = useState<'mini' | 'full'>('mini')
-
   const [isStorageLoaded, setIsStorageLoaded] = useState(false);
-  
+  const [miniVisible, setMiniVisible] = React.useState(false);
+
   // --- Settings ---
   const [isAutoPlay, setIsAutoPlay] = useState(false);
-  // const [volume, setVolume] = useState(1);
+
   const [metadataPanelData, setMetadataPanelData] = useState<MetadataPanelData | null>(null);
 
   // --- Custom Hooks ---
@@ -88,7 +87,7 @@ function App() {
 
 
   // --- Metadata Logic ---
-  const getAssociatedPlaylists = (trackName: string) => 
+  const getAssociatedPlaylists = (trackName: string) =>
     playlistManager.savedPlaylists.filter(p => p.trackNames.includes(trackName)).map(p => p.name);
 
   const handleOpenMetadata = (track?: Track) => {
@@ -112,19 +111,14 @@ function App() {
 
   const playTrackWrapper = (track: Track, index: number, specificPlaylist?: Track[]) => {
       player.playTrack(track, index, specificPlaylist || [track]);
+      setMiniVisible(false);
       setPlayerMode('full');
   };
-
-  const miniStyle = useSpring({
-      opacity: playerMode === "mini" ? 1 : 0,
-      y: playerMode === "mini" ? 0 : 20,
-      config: { tension: 200, friction: 22 }
-  });
 
   const bottomStyle = useSpring({
       opacity: playerMode === "full" ? 0 : 1,
       y: playerMode === "full" ? 20 : 0,
-      config: { tension: 200, friction: 22 }
+      config: { tension: 450, friction: 18 }
   })
 
   const playerTransition = useTransition(playerMode === "full", {
@@ -157,7 +151,7 @@ function App() {
                       </div>
                   )}
                   {(view === 'titles' || view === 'playlists') &&
-                      <div className={"flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+60px)]"}>
+                      <div className={"flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+100px)]"}>
                           <LibraryContainer
                               allTracks={allTracks}
                               playlists={playlistManager.savedPlaylists}
@@ -206,6 +200,7 @@ function App() {
                         onBack={() => {
                           // player.pause();
                           // reloadProgress();
+                          setMiniVisible(true);
                           setPlayerMode("mini");
                         }}
                         onTogglePlay={player.togglePlay}
@@ -225,20 +220,20 @@ function App() {
           <div
               className="fixed bottom-0 w-full z-40"
               style={{"paddingBottom": `calc(env(safe-area-inset-bottom))`}}>
-              <animated.div style={{
-                  opacity: miniStyle.opacity,
-                  transform: miniStyle.y.to(v => `translateY(${v}px)`)
-              }}
-               className="flex justify-around relative bg-[#111]">
-                  {player.currentTrackIndex >= 0 &&
+              <div className={`flex justify-around relative bg-[#111]`}>
+                  {(view !== 'setup' || player.audioState.coverUrl ) &&
                       <MiniPlayer
                           coverUrl={player.audioState.coverUrl}
                           name={player.audioState.name}
                           isPlaying={player.isPlaying}
                           onTogglePlay={player.togglePlay}
-                          onOpen={()=>setPlayerMode("full")}
-                  />}
-              </animated.div>
+                          progress={player.duration > 0 ? (player.currentTime / player.duration) * 100 : 0}
+                          onOpen={() => {
+                              setMiniVisible(false)
+                              setPlayerMode("full");
+                          }}
+                      />}
+              </div>
               <animated.div
                   style={{
                       opacity: bottomStyle.opacity,
