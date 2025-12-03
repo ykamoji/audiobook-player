@@ -38,7 +38,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
   onOpenMenu,
   onAddToPlaylist,
   onViewMetadata,
-  onRemoveFromPlaylist,
+  // onRemoveFromPlaylist,
   style
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
@@ -82,7 +82,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
         <div 
            className="flex-1 flex items-center gap-4 cursor-pointer min-w-0"
         >
-            <div className={`relative w-14 h-14 min-w-[3.5rem] rounded-md bg-gray-800 flex items-center justify-center transition-colors overflow-hidden ${isSelectionMode ? 'bg-transparent border-none' : ''}`}>
+            <div className={`relative w-14 h-14 min-w-[3.5rem] bg-gray-800 flex items-center justify-center transition-colors overflow-hidden ${isSelectionMode ? 'bg-transparent border-none' : ''}`}>
                 {isSelectionMode ? (
                     isSelected ? (
                         <CheckCircleIcon className="w-8 h-8 text-audible-orange" />

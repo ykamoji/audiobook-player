@@ -4,12 +4,13 @@ import { LibraryContainer } from './components/LibraryContainer';
 import { PlayerContainer } from './components/PlayerContainer';
 import { MetadataPanel, MetadataPanelData } from './components/MetadataPanel';
 import { Track, AppData } from './types';
-import { useSpring, animated } from "@react-spring/web";
+import {useSpring, animated, useTransition} from "@react-spring/web";
 import { loadInitialNativeMetadata } from './utils/persistence';
 import { usePlaylistManager } from './hooks/usePlaylistManager';
 import { useProgressManager } from './hooks/useProgressManager';
 import { useLibrary } from './hooks/useLibrary';
 import { usePlayer } from './hooks/usePlayer';
+import { MiniPlayer } from "./components/MiniPlayer.tsx";
 
 function App() {
   // --- Global View State ---
@@ -91,7 +92,12 @@ function App() {
     playlistManager.savedPlaylists.filter(p => p.trackNames.includes(trackName)).map(p => p.name);
 
   const handleOpenMetadata = (track?: Track) => {
-    const targetTrack = track || (player.audioState.name ? { name: player.audioState.name, audioFile: player.audioState.file } as Track : null);
+    let targetTrack = track;
+
+    if(typeof targetTrack.name !== "string"){
+         targetTrack = player.audioState.name ? { name: player.audioState.name, audioFile: player.audioState.file } as Track : null
+    }
+
     if (!targetTrack) return;
 
     const progress = progressMap[targetTrack.name];
@@ -120,6 +126,13 @@ function App() {
       y: playerMode === "full" ? 20 : 0,
       config: { tension: 200, friction: 22 }
   })
+
+  const playerTransition = useTransition(playerMode === "full", {
+      from: { y: 100, opacity: 0 },
+      enter: { y: 0, opacity: 1 },
+      leave: { y: 100, opacity: 0 },
+      config: { tension: 300, friction: 35 }
+    });
 
   return (
       <>
@@ -167,50 +180,71 @@ function App() {
               </div>
           </div>
           <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+60px)]">
-              {playerMode === 'full' && <PlayerContainer
-                  audioState={player.audioState}
-                  subtitleState={player.subtitleState}
-                  isPlaying={player.isPlaying}
-                  currentTime={player.currentTime}
-                  duration={player.duration}
-                  currentTrackIndex={player.currentTrackIndex}
-                  playlistLength={player.playlist.length}
-                  onNext={player.next}
-                  onPrevious={player.previous}
-                  onSkipForward={player.skipForward}
-                  onSkipBackward={player.skipBackward}
-                  onBack={() => {
-                      player.pause();
-                      reloadProgress();
-                      setPlayerMode('mini');
-                  }}
-                  onTogglePlay={player.togglePlay}
-                  onSeek={player.seek}
-                  onSubtitleClick={player.jumpToTime}
-                  onOpenMetadata={() => handleOpenMetadata()}
-                  onSegmentChange={player.changeSegment}
-              />}
+              {playerTransition((style, item) =>
+                  item ? (
+                    <animated.div
+                      style={{
+                        transform: style.y.to(v => `translateY(${v}%)`),
+                        opacity: style.opacity,
+                        position: "absolute",
+                        inset: 0,
+                        zIndex: 50
+                      }}
+                    >
+                      <PlayerContainer
+                        audioState={player.audioState}
+                        subtitleState={player.subtitleState}
+                        isPlaying={player.isPlaying}
+                        currentTime={player.currentTime}
+                        duration={player.duration}
+                        currentTrackIndex={player.currentTrackIndex}
+                        playlistLength={player.playlist.length}
+                        onNext={player.next}
+                        onPrevious={player.previous}
+                        onSkipForward={player.skipForward}
+                        onSkipBackward={player.skipBackward}
+                        onBack={() => {
+                          // player.pause();
+                          // reloadProgress();
+                          setPlayerMode("mini");
+                        }}
+                        onTogglePlay={player.togglePlay}
+                        onSeek={player.seek}
+                        onSubtitleClick={player.jumpToTime}
+                        onOpenMetadata={handleOpenMetadata}
+                        onSegmentChange={player.changeSegment}
+                      />
+                    </animated.div>
+                  ) : null
+              )}
           </div>
           <MetadataPanel
               data={metadataPanelData}
               onClose={() => setMetadataPanelData(null)}
           />
           <div
-              className="fixed bottom-0 w-full pb-1"
+              className="fixed bottom-0 w-full z-40"
               style={{"paddingBottom": `calc(env(safe-area-inset-bottom))`}}>
               <animated.div style={{
-                    opacity: miniStyle.opacity,
-                    transform: miniStyle.y.to(v => `translateY(${v}px)`)
-                  }}
-                  className="flex justify-around z-40 bg-[#111]">
-                  MINI MODE
+                  opacity: miniStyle.opacity,
+                  transform: miniStyle.y.to(v => `translateY(${v}px)`)
+              }}
+               className="flex justify-around relative bg-[#111]">
+                  {player.currentTrackIndex >= 0 &&
+                      <MiniPlayer
+                          coverUrl={player.audioState.coverUrl}
+                          name={player.audioState.name}
+                          isPlaying={player.isPlaying}
+                          onTogglePlay={player.togglePlay}
+                          onOpen={()=>setPlayerMode("full")}
+                  />}
               </animated.div>
               <animated.div
                   style={{
-                    opacity: bottomStyle.opacity,
-                    transform: bottomStyle.y.to(v => `translateY(${v}px)`)
+                      opacity: bottomStyle.opacity,
+                      transform: bottomStyle.y.to(v => `translateY(${v}px)`)
                   }}
-                  className="relative z-40 flex justify-center bg-[#111] gap-x-8">
+                  className={`relative flex justify-center bg-[#111] gap-x-8 ${playerMode === 'mini' && player.currentTrackIndex >= 0 ? "pt-4" : "" }`}>
                   <button
                       onClick={() => setView('setup')}
                       className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'setup' ? 'text-white border-audible-orange' : 'border-audible-bg text-gray-500 hover:text-gray-300'}`}>
