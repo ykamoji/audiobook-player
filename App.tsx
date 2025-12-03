@@ -197,7 +197,7 @@ function App() {
           />
           <div
               className="fixed bottom-0 w-full pb-1"
-              style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 10px)`}}>
+              style={{"paddingBottom": `calc(env(safe-area-inset-bottom))`}}>
               <animated.div style={{
                     opacity: miniStyle.opacity,
                     transform: miniStyle.y.to(v => `translateY(${v}px)`)
@@ -213,17 +213,17 @@ function App() {
                   className="relative z-40 flex justify-center bg-[#111] gap-x-8">
                   <button
                       onClick={() => setView('setup')}
-                      className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'setup' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
+                      className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'setup' ? 'text-white border-audible-orange' : 'border-audible-bg text-gray-500 hover:text-gray-300'}`}>
                       Sync
                   </button>
                   <button
                       onClick={() => setView('titles')}
-                      className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'titles' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
+                      className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'titles' ? 'text-white border-audible-orange' : 'border-audible-bg text-gray-500 hover:text-gray-300'}`}>
                       Library
                   </button>
                   <button
                       onClick={() => setView('playlists')}
-                      className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'playlists' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
+                      className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'playlists' ? 'text-white border-audible-orange' : 'border-audible-bg text-gray-500 hover:text-gray-300'}`}>
                       Playlists
                   </button>
               </animated.div>

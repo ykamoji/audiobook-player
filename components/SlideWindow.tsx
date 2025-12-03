@@ -1,13 +1,13 @@
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
-import { useEffect, ReactNode, FC } from "react";
+import { useEffect, useState, ReactNode, FC } from "react";
 
-type Side = "bottom" | "right";
+type Side = "bottom" | "right" | "left" | "auto";
 
 interface SlideWindowProps {
     open: boolean;
     onClose: () => void;
-    side?: Side;
+    side?: Side;    // ← now supports "auto"
     width?: number | string;
     height?: number | string;
     children: ReactNode;
@@ -24,8 +24,37 @@ export const SlideWindow: FC<SlideWindowProps> = ({
     className = ""
 }) => {
 
+    // -----------------------------
+    // ORIENTATION STATE
+    // -----------------------------
+    const getOrientation = () =>
+        window.innerWidth < window.innerHeight ? "portrait" : "landscape";
+
+    const [orientation, setOrientation] = useState(getOrientation());
+
+    useEffect(() => {
+        const handler = () => setOrientation(getOrientation());
+        window.addEventListener("resize", handler);
+        window.addEventListener("orientationchange", handler);
+        return () => {
+            window.removeEventListener("resize", handler);
+            window.removeEventListener("orientationchange", handler);
+        };
+    }, []);
+
+    // Auto-side logic
+    const resolvedSide =
+        side === "auto"
+            ? orientation === "portrait"
+                ? "left"
+                : "bottom"
+            : side;
+
+    // -----------------------------
+    // DIMENSIONS
+    // -----------------------------
     const sheetSize =
-        side === "bottom"
+        resolvedSide === "bottom"
             ? (typeof height === "string"
                 ? window.innerHeight * (parseInt(height) / 100)
                 : height)
@@ -33,38 +62,49 @@ export const SlideWindow: FC<SlideWindowProps> = ({
                 ? window.innerWidth * (parseInt(width) / 100)
                 : width);
 
-    // Spring controls the sheet position
+    // -----------------------------
+    // SPRING
+    // -----------------------------
     const [{ pos }, api] = useSpring(() => ({
         pos: sheetSize,
         config: { tension: 500, friction: 40 }
     }));
 
-    // Open/close animation
     useEffect(() => {
         api.start({ pos: open ? 0 : sheetSize });
-    }, [open]);
+    }, [open, sheetSize]);
 
-    // Gesture Logic
+    // -----------------------------
+    // GESTURE
+    // -----------------------------
     const bind = useDrag(
         ({ last, movement: [mx, my], velocity: [vx, vy], cancel }) => {
             let dragValue = 0;
             let isFlick = false;
             let isPulled = false;
 
-            // BOTTOM SHEET DRAG
-            if (side === "bottom") {
+            // Bottom Sheet
+            if (resolvedSide === "bottom") {
                 if (my < 0) return cancel();
                 dragValue = my;
                 isFlick = vy > 0.5;
                 isPulled = my > sheetSize * 0.25;
             }
 
-            // RIGHT SHEET DRAG
-            if (side === "right") {
+            // Right Sheet
+            if (resolvedSide === "right") {
                 if (mx < 0) return cancel();
                 dragValue = mx;
                 isFlick = vx > 0.5;
                 isPulled = mx > sheetSize * 0.25;
+            }
+
+            // Left Sheet
+            if (resolvedSide === "left") {
+                if (mx > 0) return cancel(); // dragging right should not move sheet
+                dragValue = Math.abs(mx);
+                isFlick = vx < -0.5;
+                isPulled = dragValue > sheetSize * 0.25;
             }
 
             if (!last) {
@@ -76,32 +116,41 @@ export const SlideWindow: FC<SlideWindowProps> = ({
         },
         {
             from: () => [0, pos.get()],
-            bounds: { top: 0 },
             rubberband: false
         }
     );
 
-    // Positioning
+    // -----------------------------
+    // TRANSFORM
+    // -----------------------------
     const style =
-        side === "bottom"
+        resolvedSide === "bottom"
             ? { transform: pos.to((v) => `translateY(${v}px)`) }
-            : { transform: pos.to((v) => `translateX(${v}px)`) };
+            : resolvedSide === "right"
+            ? { transform: pos.to((v) => `translateX(${v}px)`) }
+            : { transform: pos.to((v) => `translateX(${-v}px)`) }; // left drawer
 
+    // -----------------------------
+    // POSITIONING CLASSES
+    // -----------------------------
     const baseClass =
-        side === "bottom"
+        resolvedSide === "bottom"
             ? "fixed left-0 right-0 bottom-0"
-            : "fixed top-0 bottom-0 right-0";
+            : resolvedSide === "right"
+            ? "fixed top-0 bottom-0 right-0"
+            : "fixed top-0 bottom-0 left-0";
 
     return (
         <animated.div
             {...bind()}
-            style={{...style,
-                height: side === "bottom" ? height : "100%",
-                width: side === "right" ? width : "100%",
-                touchAction: open ? 'none' : 'auto',
-                zIndex: "100"
-        }}
-            className={`${baseClass} border-white/10 bg-[#1a1a1a] overflow-hidden ${className}`}
+            style={{
+                ...style,
+                height: resolvedSide === "bottom" ? height : "100%",
+                width: resolvedSide !== "bottom" ? width : "100%",
+                touchAction: "none",
+                zIndex: 100
+            }}
+            className={`${baseClass} bg-[#1a1a1a] border-white/10 overflow-hidden ${className}`}
         >
             {children}
         </animated.div>

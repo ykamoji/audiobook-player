@@ -71,14 +71,14 @@ export const Controls: React.FC<ControlsProps> = ({
           {/* Track */}
           <div className="w-full h-1 bg-audible-separator relative">
             <div
-                className="h-full bg-audible-orange transition-all duration-100 ease-linear"
+                className="h-full z-0 bg-audible-orange transition-all duration-100 ease-linear"
                 style={{width: `${progress}%`}}
             />
           </div>
 
           {/* Knob */}
           <div
-              className="absolute top-1/2 h-4 w-4 bg-white rounded-full pointer-events-none transition-all duration-100 ease-linear"
+              className="absolute top-1/2 h-4 w-4 z-10 bg-white rounded-full pointer-events-none transition-all duration-100 ease-linear"
               style={{
                 left: `${progress}%`,
                 transform: "translate(-50%, -50%)"
@@ -123,9 +123,9 @@ export const Controls: React.FC<ControlsProps> = ({
         {/* Play Button */}
         <button
           onClick={onPlayPause}
-          className="w-14 h-14 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-audible-orange/10 z-10"
+          className="w-16 h-16 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 active:scale-95 transition-all shadow-audible-orange/10 z-10"
         >
-          {isPlaying ? <PauseIcon className="w-6 h-6 scale-125" /> : <PlayIcon className="w-6 h-6 ml-0 scale-125" />}
+          {isPlaying ? <PauseIcon className="w-10 h-10" /> : <PlayIcon className="w-10 h-10 ml-0" />}
         </button>
 
          {/* Forward 10s */}

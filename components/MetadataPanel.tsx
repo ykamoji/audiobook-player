@@ -25,7 +25,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({ data, onClose }) =
             className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ${data ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
             onClick={onClose}
           />
-          <SlideWindow open={!!data} onClose={onClose} side="right">
+          <SlideWindow open={!!data} onClose={onClose} side={"bottom"}>
           {/* Panel */}
           <div className={"bg-[#1a1a1a] z-30 border-l border-white/10 p-6 flex flex-col w-full pt-[calc(env(safe-area-inset-top)+15px)] pb-[calc(env(safe-area-inset-bottom))] "}>
               <div className="flex items-center justify-between mb-8">

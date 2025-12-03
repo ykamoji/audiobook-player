@@ -172,9 +172,9 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
         <animated.div
             {...(showChapters ? {} : bindPlayerSwipe())}
             style={{ y: playerY, touchAction: showChapters ? 'auto' : 'none' }}
-            className="absolute inset-0 z-50 flex flex-col bg-black overflow-hidden pt-[calc(env(safe-area-inset-top)-10px)] ">
+            className="absolute inset-0 z-50 flex flex-col bg-black overflow-hidden pt-[calc(env(safe-area-inset-top))] ">
 
-          <div className="absolute left-0 right-0 z-30 p-4 flex items-center bg-gradient-to-b from-black/80 to-transparent">
+          <div className="absolute left-0 right-0 z-30 ps-4 pt-1 flex items-center bg-gradient-to-b from-black/80 to-transparent">
             <button
               onClick={onBack}
               className="p-2 text-white/90 hover:text-white transition-colors bg-black/20 rounded-full backdrop-blur-sm"
@@ -188,9 +188,9 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           </div>
 
       {/* Fixed Cover Image Area */}
-      <div className="mt-14 w-full flex-none flex flex-col justify-center items-center h-[45dvh] min-h-[300px] max-h-[600px] z-10 transition-all duration-300">
+      <div className="mt-3 w-full flex-none flex flex-col justify-center items-center h-[50dvh] min-h-[300px] max-h-[600px] z-10 transition-all duration-300">
           {audioState.coverUrl ? (
-              <div className="relative h-[85%] aspect-[4/3] overflow-hidden">
+              <div className="relative h-[100%] aspect-[1/1] overflow-hidden">
                   <img
                       src={audioState.coverUrl}
                       alt={audioState.name}
@@ -285,8 +285,8 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
             onClick={() => setShowChapters(false)}
         />
         {/* Bottom Sheet */}
-          <SlideWindow open={showChapters} onClose={() => setShowChapters(false)} side="bottom" height="40dvh">
-            <div className="bg-[#1a1a1a] rounded-t-3xl z-50 border-t border-white/10 flex flex-col h-full">
+          <SlideWindow open={showChapters} onClose={() => setShowChapters(false)} side="auto" height="40dvh">
+            <div className="bg-[#1a1a1a] rounded-t-3xl z-50 border-t border-white/10 flex flex-col h-full pt-[calc(env(safe-area-inset-top))]">
             <div className="flex items-center justify-between p-4 border-b border-white/5">
                 <div className="flex items-center gap-2">
                     <ListIcon className="w-5 h-5 text-audible-orange" />
