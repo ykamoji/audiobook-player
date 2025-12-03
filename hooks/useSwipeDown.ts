@@ -1,0 +1,45 @@
+import { useSpring } from "@react-spring/web";
+import { useDrag } from "@use-gesture/react";
+
+export function useSwipeDown(onClose: () => void, threshold = 120) {
+  const [{ y }, api] = useSpring(() => ({
+    y: 0,
+    config: { tension: 120, friction: 30, mass: 1.5 }
+  }));
+
+  const bind = useDrag(
+    ({ last, movement: [, my], velocity: [, vy], cancel }) => {
+      if (my < 0) return cancel();
+
+      if (!last) {
+        api.start({ y: my, immediate: true });
+        return;
+      }
+
+      const shouldClose = my > threshold || vy > 0.5;
+
+      if (shouldClose) {
+        api.start({
+          y: window.innerHeight,
+          config: {
+            duration: 500,
+            easing: t => 1 - Math.pow(1 - t, 3)
+          },
+          onRest: () => {
+            onClose();
+            // api.set({ y: 0 });
+          }
+        });
+      } else {
+        // Snap back
+        api.start({
+          y: 0,
+          config: { tension: 200, friction: 25 }
+        });
+      }
+    },
+    { from: () => [0, y.get()] }
+  );
+
+  return { bind, y, api };
+}

@@ -117,9 +117,9 @@ export const Library: React.FC<LibraryProps> = ({
   // --- Derived State for Selection Logic ---
   const currentListTracks = useMemo(() => {
 
-    if(activeTab === 'titles' && selectedPlaylistId)  {
-        setSelectedPlaylistId(prevState => !prevState)
-    }
+    // if(activeTab === 'titles' && selectedPlaylistId)  {
+    //     setSelectedPlaylistId(prevState => !prevState)
+    // }
 
     if (selectedPlaylistId) {
         const playlist = playlists.find(p => p.id === selectedPlaylistId);
@@ -274,8 +274,7 @@ export const Library: React.FC<LibraryProps> = ({
                             {showPlaylistMenu && (
                                 <div 
                                     ref={playlistMenuRef}
-                                    className="absolute right-0 top-full mt-2 w-48 bg-[#2a2a2a] border border-audible-separator rounded-lg overflow-hidden z-20 animate-fade-in"
-                                >
+                                    className="absolute right-0 top-full mt-2 w-48 bg-[#2a2a2a] border border-audible-separator rounded-lg overflow-hidden z-20 animate-fade-in">
                                     <button 
                                         className="w-full text-left px-4 py-3 hover:bg-white/10 text-sm text-red-400 flex items-center gap-2"
                                         onClick={() => {
@@ -284,8 +283,7 @@ export const Library: React.FC<LibraryProps> = ({
                                                 setSelectedPlaylistId(null);
                                             }
                                             setShowPlaylistMenu(false);
-                                        }}
-                                    >
+                                        }}>
                                         <TrashIcon className="w-4 h-4" />
                                         Delete Playlist
                                     </button>
@@ -330,7 +328,7 @@ export const Library: React.FC<LibraryProps> = ({
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-        <div className="p-4 flex items-center justify-end gap-5 flex-shrink-0 bg-audible-bg z-10">
+        <div className="p-4 flex items-center justify-end gap-5 flex-shrink-0 bg-audible-bg">
             <div className="flex items-center">
                 {activeTab === 'titles' && (
                     <div className="flex items-center gap-4">

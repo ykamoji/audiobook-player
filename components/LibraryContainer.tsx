@@ -31,7 +31,7 @@ interface LibraryContainerProps {
   };
 
   // Settings
-  volume: number;
+  // volume: number;
   nativeRootPath: string;
 }
 
@@ -47,7 +47,7 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
   onToggleAutoPlay,
   onViewMetadata,
   playlistActions,
-  volume,
+  // volume,
   nativeRootPath
 }) => {
 
@@ -57,7 +57,7 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
       const data: AppData = {
           progress: progressMap,
           playlists: playlists,
-          settings: { volume, isAutoPlay },
+          settings: { isAutoPlay },
           exportedAt: Date.now()
       };
 

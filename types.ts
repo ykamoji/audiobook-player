@@ -47,7 +47,7 @@ export interface ProgressData {
 }
 
 export interface AppSettings {
-  volume: number;
+  // volume: number;
   isAutoPlay: boolean;
 }
 

@@ -94,8 +94,8 @@ export const TrackRow: React.FC<TrackRowProps> = ({
                         <Thumbnail file={track.coverFile} />
                     ) : track.coverPath ? ( <Thumbnail file={track.coverPath} /> ) : (
                         <>
-                            <MusicIcon className="w-8 h-8 z-10 text-gray-500 group-hover:text-white" />
-                            {isCompleted && <div className="absolute inset-0 bg-audible-orange/20 z-0"></div>}
+                            <MusicIcon className="w-8 h-8 text-gray-500 group-hover:text-white" />
+                            {isCompleted && <div className="absolute inset-0 bg-audible-orange/2"></div>}
                         </>
                     )
                 )}
@@ -143,7 +143,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
         {/* Action Menu Trigger (Hide in selection mode) */}
         {!isSelectionMode && (
             <button 
-            className="p-2 text-gray-500 hover:text-white transition-colors relative z-10"
+            className="p-2 text-gray-500 hover:text-white transition-colors relative"
             onClick={(e) => {
                 e.stopPropagation();
                 onOpenMenu(activeMenuTrackId === track.id ? null : track.id);
@@ -157,7 +157,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
         {activeMenuTrackId === track.id && (
           <div 
             ref={menuRef}
-            className="absolute right-10 top-10 bg-[#2a2a2a] border border-audible-separator rounded-lg w-52 py-1 z-20 overflow-hidden animate-fade-in"
+            className="absolute right-10 top-10 bg-[#2a2a2a] border border-audible-separator rounded-lg w-52 py-1 overflow-hidden animate-fade-in"
           >
             <button 
               className="w-full text-left px-4 py-3 hover:bg-white/10 text-sm flex items-center gap-2"

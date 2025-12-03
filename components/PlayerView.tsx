@@ -3,6 +3,9 @@ import { Controls } from './Controls';
 import { ChevronLeftIcon, XIcon, ListIcon } from './Icons';
 import { AudioFileState, SubtitleFileState, SubtitleCue } from '../types';
 import { SlideWindow } from "./SlideWindow.tsx";
+import { animated } from "@react-spring/web";
+import { useSwipeDown } from './../hooks/useSwipeDown';
+
 
 interface PlayerViewProps {
   audioState: AudioFileState;
@@ -125,29 +128,41 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const { bind: bindPlayerSwipe, y: playerY, api: playerApi } = useSwipeDown(onBack);
+
+    useEffect(() => {
+         playerApi.set({ y: 0 });
+    }, []);
+
+
   return (
-    <div className="relative h-full flex flex-col">
-      {/* Header (Absolute) */}
-      <div className="absolute top-0 left-0 right-0 z-30 p-4 flex items-center bg-gradient-to-b from-black/80 to-transparent">
-        <button 
-          onClick={onBack}
-          className="p-2 text-white/90 hover:text-white transition-colors bg-black/20 rounded-full backdrop-blur-sm"
-        >
-          <ChevronLeftIcon />
-        </button>
-        <div className="ml-4 flex-1 min-w-0">
-            <h2 className="font-semibold text-xs text-audible-orange uppercase tracking-widest">Now Playing</h2>
-            <p className="font-bold truncate text-sm text-gray-200">{audioState.name}</p>
-        </div>
-      </div>
+    // <div className="relative h-full overflow-hidden no-scrollbar flex flex-col ">
+    //    Header (Absolute)
+        <animated.div
+            {...bindPlayerSwipe()}
+            style={{y: playerY}}
+            className="absolute inset-0 flex flex-col bg-black overflow-hidden" >
+
+          <div className="absolute top-0 left-0 right-0 z-30 p-4 flex items-center bg-gradient-to-b from-black/80 to-transparent">
+            <button
+              onClick={onBack}
+              className="p-2 text-white/90 hover:text-white transition-colors bg-black/20 rounded-full backdrop-blur-sm"
+            >
+              <ChevronLeftIcon />
+            </button>
+            <div className="ml-4 flex-1 min-w-0">
+                <h2 className="font-semibold text-xs text-audible-orange uppercase tracking-widest">Now Playing</h2>
+                <p className="font-bold truncate text-sm text-gray-200">{audioState.name}</p>
+            </div>
+          </div>
 
       {/* Fixed Cover Image Area */}
       <div className="mt-14 w-full flex-none flex flex-col justify-center items-center h-[45dvh] min-h-[300px] max-h-[600px] z-10 transition-all duration-300">
           {audioState.coverUrl ? (
               <div className="relative h-[85%] aspect-square rounded-lg overflow-hidden">
-                  <img 
-                      src={audioState.coverUrl} 
-                      alt={audioState.name} 
+                  <img
+                      src={audioState.coverUrl}
+                      alt={audioState.name}
                       className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 ring-1 ring-white/10 rounded-lg"></div>
@@ -205,8 +220,9 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
         </div>
       </div>
 
+
       {/* Player Controls (Bottom Sheet) */}
-      <div className="glass absolute bottom-0 left-0 right-0 p-4 pt-3 pb-4 rounded-t-3xl border-t border-white/5 z-20" style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 30px)`}}>
+      <div className="glass bottom-0 left-0 right-0 p-4 pt-3 pb-4 rounded-t-3xl border-t border-white/5 z-20" style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 75px)`}}>
         <Controls
           isPlaying={isPlaying}
           onPlayPause={onTogglePlay}
@@ -285,6 +301,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           </div>
           </SlideWindow>
       </>
-    </div>
+        </animated.div>
+    // </div>
   );
 };

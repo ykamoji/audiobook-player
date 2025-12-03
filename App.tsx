@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Setup } from './components/Setup';
 import { LibraryContainer } from './components/LibraryContainer';
@@ -13,7 +12,10 @@ import { usePlayer } from './hooks/usePlayer';
 
 function App() {
   // --- Global View State ---
-  const [view, setView] = useState<'setup' | 'player'>('setup');
+  const [view, setView] = useState<'setup' | 'titles' | 'playlists' >('setup');
+
+  const [playerMode, setPlayerMode] = useState<'mini' | 'full'>('mini')
+
   const [isStorageLoaded, setIsStorageLoaded] = useState(false);
   
   // --- Settings ---
@@ -103,12 +105,13 @@ function App() {
 
   const playTrackWrapper = (track: Track, index: number, specificPlaylist?: Track[]) => {
       player.playTrack(track, index, specificPlaylist || [track]);
-      setView('player');
+      setPlayerMode('full');
   };
 
   return (
       <>
-          <div className="h-screen flex flex-col bg-audible-bg text-white font-sans selection:bg-audible-orange overflow-hidden selection:text-black">
+          <div
+              className="h-screen flex flex-col bg-audible-bg text-white font-sans selection:bg-audible-orange overflow-hidden selection:text-black">
               <audio
                   ref={player.audioRef}
                   src={player.audioState.url || undefined}
@@ -117,7 +120,7 @@ function App() {
                   onDurationChange={player.onLoadedMetadata}
                   onEnded={player.onEnded}
               />
-              <div className="flex-1 overflow-hidden flex flex-col">
+              <div className="flex-1 overflow-hidden flex flex-col relative">
                   {view === 'setup' && (
                       <div className="flex-1 overflow-y-auto">
                           <Setup
@@ -128,9 +131,8 @@ function App() {
                           />
                       </div>
                   )}
-
-                  {(view === 'titles' || view === 'playlists') && (
-                      <div className="flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+80px)]">
+                  {(view === 'titles' || view === 'playlists') &&
+                      <div className={"flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+80px)]"}>
                           <LibraryContainer
                               allTracks={allTracks}
                               playlists={playlistManager.savedPlaylists}
@@ -149,66 +151,66 @@ function App() {
                               nativeRootPath={nativeRootPath}
                           />
                       </div>
-                  )}
-
-                  {view === 'player' && (
-                      <div
-                          className="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+80px)]">
-                          <PlayerContainer
-                              audioState={player.audioState}
-                              subtitleState={player.subtitleState}
-                              isPlaying={player.isPlaying}
-                              currentTime={player.currentTime}
-                              duration={player.duration}
-                              currentTrackIndex={player.currentTrackIndex}
-                              playlistLength={player.playlist.length}
-                              onNext={player.next}
-                              onPrevious={player.previous}
-                              onSkipForward={player.skipForward}
-                              onSkipBackward={player.skipBackward}
-                              onBack={() => {
-                                  player.pause();
-                                  reloadProgress();
-                                  setView('titles');
-                              }}
-                              onTogglePlay={player.togglePlay}
-                              onSeek={player.seek}
-                              onSubtitleClick={player.jumpToTime}
-                              onOpenMetadata={() => handleOpenMetadata()}
-                              onSegmentChange={player.changeSegment}
-                          />
-                      </div>
-                  )}
-                </div>
-               <MetadataPanel
-                          data={metadataPanelData}
-                          onClose={() => setMetadataPanelData(null)}
-                      />
+                  }
               </div>
-            <div className="fixed bottom-0 w-full pb-1 pt-2 ps-4 flex items-center z-50 justify-center bg-black flex-shrink-0"
-                 style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 20px)`}}>
-                <div className="flex justify-around gap-6">
-                    <button onClick={() => setView('setup')}
-                            className={`flex items-center gap-2 text-gray-400 hover:text-white border-b-2 transition-colors ${view === 'setup' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
+          </div>
+          <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+80px)]">
+              {playerMode === 'full' && <PlayerContainer
+                  audioState={player.audioState}
+                  subtitleState={player.subtitleState}
+                  isPlaying={player.isPlaying}
+                  currentTime={player.currentTime}
+                  duration={player.duration}
+                  currentTrackIndex={player.currentTrackIndex}
+                  playlistLength={player.playlist.length}
+                  onNext={player.next}
+                  onPrevious={player.previous}
+                  onSkipForward={player.skipForward}
+                  onSkipBackward={player.skipBackward}
+                  onBack={() => {
+                      player.pause();
+                      reloadProgress();
+                      setPlayerMode('mini');
+                  }}
+                  onTogglePlay={player.togglePlay}
+                  onSeek={player.seek}
+                  onSubtitleClick={player.jumpToTime}
+                  onOpenMetadata={() => handleOpenMetadata()}
+                  onSegmentChange={player.changeSegment}
+              />}
+          </div>
+          <MetadataPanel
+              data={metadataPanelData}
+              onClose={() => setMetadataPanelData(null)}
+          />
+          <div
+              className="fixed bottom-0 w-full pb-1 pt-2 ps-4 z-50 bg-black"
+              style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 20px)`}}>
+              { playerMode == 'mini' && <div className="">
+                  MINI MODE
+              </div>}
+              <div className="flex items-center justify-center gap-6">
+                  <button onClick={() => setView('setup')}
+                          className={`flex items-center gap-2 text-gray-400 hover:text-white border-b-2 transition-colors ${view === 'setup' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
                             <span className="text-lg font-bold pb-1 transition-colors ">
                                 Sync
                             </span>
-                    </button>
-                    <button
-                        onClick={() => setView('titles')}
-                        className={`text-lg font-bold pb-1 transition-colors border-b-2 ${view === 'titles' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}
-                    >
-                        Library
-                    </button>
-                    <button
-                        onClick={() => setView('playlists')}
-                        className={`text-lg font-bold pb-1 transition-colors border-b-2 ${view === 'playlists' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}
-                    >
-                        Playlists
-                    </button>
-                </div>
-            </div>
-     </>
+                  </button>
+                  <button
+                      onClick={() => setView('titles')}
+                      className={`text-lg font-bold pb-1 transition-colors border-b-2 ${view === 'titles' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}
+                  >
+                      Library
+                  </button>
+                  <button
+                      onClick={() => setView('playlists')}
+                      className={`text-lg font-bold pb-1 transition-colors border-b-2 ${view === 'playlists' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}
+                  >
+                      Playlists
+                  </button>
+              </div>
+          </div>
+      </>
   );
 }
 
