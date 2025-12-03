@@ -115,10 +115,15 @@ function App() {
       config: { tension: 200, friction: 22 }
   });
 
+  const bottomStyle = useSpring({
+      opacity: playerMode === "full" ? 0 : 1,
+      y: playerMode === "full" ? 20 : 0,
+      config: { tension: 200, friction: 22 }
+  })
+
   return (
       <>
-          <div
-              className="h-screen flex flex-col bg-audible-bg text-white font-sans selection:bg-audible-orange overflow-hidden selection:text-black">
+          <div className="h-screen flex flex-col bg-audible-bg text-white font-sans selection:bg-audible-orange overflow-hidden selection:text-black">
               <audio
                   ref={player.audioRef}
                   src={player.audioState.url || undefined}
@@ -139,7 +144,7 @@ function App() {
                       </div>
                   )}
                   {(view === 'titles' || view === 'playlists') &&
-                      <div className={"flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+80px)]"}>
+                      <div className={"flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+60px)]"}>
                           <LibraryContainer
                               allTracks={allTracks}
                               playlists={playlistManager.savedPlaylists}
@@ -148,10 +153,10 @@ function App() {
                               activeTab={view}
                               // onSetTracks={(tracks, meta) => { setAllTracks(tracks); if(meta) applyMetadata(meta); }}
                               onSelectTrack={playTrackWrapper}
-                              onBackToSetup={() => {
-                                  reloadProgress();
-                                  setView('setup');
-                              }}
+                              // onBackToSetup={() => {
+                              //     reloadProgress();
+                              //     setView('setup');
+                              // }}
                               onToggleAutoPlay={() => setIsAutoPlay(!isAutoPlay)}
                               onViewMetadata={handleOpenMetadata}
                               playlistActions={playlistManager}
@@ -161,7 +166,7 @@ function App() {
                   }
               </div>
           </div>
-          <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+80px)]">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+60px)]">
               {playerMode === 'full' && <PlayerContainer
                   audioState={player.audioState}
                   subtitleState={player.subtitleState}
@@ -191,35 +196,37 @@ function App() {
               onClose={() => setMetadataPanelData(null)}
           />
           <div
-              className="fixed bottom-0 w-full pb-1 z-50 bg-black"
-              style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 20px)`}}>
+              className="fixed bottom-0 w-full pb-1"
+              style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 10px)`}}>
               <animated.div style={{
                     opacity: miniStyle.opacity,
                     transform: miniStyle.y.to(v => `translateY(${v}px)`)
                   }}
-                  className="flex justify-around">
+                  className="flex justify-around z-40 bg-[#111]">
                   MINI MODE
               </animated.div>
-              <div className="flex items-center justify-center gap-x-9 pt-1">
-                  <button onClick={() => setView('setup')}
-                          className={`flex items-center gap-2 text-gray-400 hover:text-white border-b-2 transition-colors ${view === 'setup' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
-                            <span className="text-lg font-bold pb-1 transition-colors ">
-                                Sync
-                            </span>
+              <animated.div
+                  style={{
+                    opacity: bottomStyle.opacity,
+                    transform: bottomStyle.y.to(v => `translateY(${v}px)`)
+                  }}
+                  className="relative z-40 flex justify-center bg-[#111] gap-x-8">
+                  <button
+                      onClick={() => setView('setup')}
+                      className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'setup' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
+                      Sync
                   </button>
                   <button
                       onClick={() => setView('titles')}
-                      className={`text-lg font-bold pb-1 transition-colors border-b-2 ${view === 'titles' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}
-                  >
+                      className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'titles' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
                       Library
                   </button>
                   <button
                       onClick={() => setView('playlists')}
-                      className={`text-lg font-bold pb-1 transition-colors border-b-2 ${view === 'playlists' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}
-                  >
+                      className={`text-lg font-bold pb-1 w-[75px] transition-colors border-b-2 ${view === 'playlists' ? 'text-white border-audible-orange' : 'border-black text-gray-500 hover:text-gray-300'}`}>
                       Playlists
                   </button>
-              </div>
+              </animated.div>
           </div>
       </>
   );

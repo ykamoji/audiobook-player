@@ -166,18 +166,35 @@ export const LibraryIcon = ({ className = "w-6 h-6" }: { className?: string }) =
 );
 
 export const Rewind10Icon = ({ className = "w-6 h-6" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 13c0-4.8 4.2-8.2 8-8.2s8 3.4 8 8.2" />
-    <path d="M8 9L4.2 6v4" />
-    <text x="12" y="18.6" fontSize="8.8" fontWeight="100" textAnchor="middle" fill="currentColor">10</text>
-  </svg>
+    <svg className={className} viewBox="0 0 28 28" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <g transform={"scale(-1.2, 1.2) translate(-24, 0)"} strokeWidth="1">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+            <path d="M21 3v5h-5"/>
+        </g>
+        <g transform={"translate(2,2)"} strokeWidth="1.5">
+            <path d="M10 9v6"/>
+            <path d="
+            M14 9
+            c1.2 0 2 1 2 3s-0.8 3-2 3
+            c-1.2 0-2-1-2-3s0.8-3 2-3"/>
+        </g>
+    </svg>
 );
 
+export const Forward10Icon = ({className = "w-6 h-6"}) => (
+    <svg className={className} viewBox="0 0 28 28" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <g transform={"scale(1.2)"} strokeWidth="1">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+            <path d="M21 3v5h-5"/>
+        </g>
+        <g transform={"translate(2,2)"} strokeWidth="1.5">
+            <path d="M10 9v6"/>
+            <path d="
+            M14 9
+            c1.2 0 2 1 2 3s-0.8 3-2 3
+            c-1.2 0-2-1-2-3s0.8-3 2-3"/>
+            </g>
+    </svg>
 
-export const Forward10Icon = ({ className = "w-6 h-6" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 13c0-4.8 4.2-8.2 8-8.2s8 3.4 8 8.2" />
-    <path d="M16 9l3.8-3v4" />
-    <text x="12" y="18.6" fontSize="8.8" fontWeight="100" textAnchor="middle" fill="currentColor">10</text>
-  </svg>
+
 );

@@ -97,9 +97,11 @@ export const SlideWindow: FC<SlideWindowProps> = ({
             {...bind()}
             style={{...style,
                 height: side === "bottom" ? height : "100%",
-            width: side === "right" ? width : "100%",
+                width: side === "right" ? width : "100%",
+                touchAction: open ? 'none' : 'auto',
+                zIndex: "100"
         }}
-            className={`${baseClass} z-50 border-white/10 bg-[#1a1a1a] overflow-hidden ${className}`}
+            className={`${baseClass} border-white/10 bg-[#1a1a1a] overflow-hidden ${className}`}
         >
             {children}
         </animated.div>

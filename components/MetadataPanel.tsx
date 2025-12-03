@@ -19,7 +19,7 @@ interface MetadataPanelProps {
 
 export const MetadataPanel: React.FC<MetadataPanelProps> = ({ data, onClose }) => {
   return (
-        <div style={{"paddingTop": `calc(env(safe-area-inset-top) - 15px)`}}>
+        <>
           {/* Backdrop */}
           <div
             className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ${data ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
@@ -27,7 +27,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({ data, onClose }) =
           />
           <SlideWindow open={!!data} onClose={onClose} side="right">
           {/* Panel */}
-          <div className={"bg-[#1a1a1a] z-30 border-l border-white/10 p-6 flex flex-col w-full"}>
+          <div className={"bg-[#1a1a1a] z-30 border-l border-white/10 p-6 flex flex-col w-full pt-[calc(env(safe-area-inset-top)+15px)] pb-[calc(env(safe-area-inset-bottom))] "}>
               <div className="flex items-center justify-between mb-8">
                   <h2 className="text-xl font-bold text-white">Metadata</h2>
                   <button onClick={onClose} className="text-gray-400 hover:text-white">
@@ -73,6 +73,6 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({ data, onClose }) =
               )}
           </div>
           </SlideWindow>
-        </div>
+        </>
   );
 };

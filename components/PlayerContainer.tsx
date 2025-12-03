@@ -82,6 +82,7 @@ export const PlayerContainer: React.FC<PlayerContainerProps> = ({
     return subtitleState.cues.slice(start, end);
   }, [subtitleState.cues, currentSegmentIndex]);
 
+
   // 4. Calculate Segment Time Bounds
   // const { segmentDuration, segmentCurrentTime } = useMemo(() => {
   //     if (currentSegmentCues.length === 0) return { segmentDuration: 0, segmentCurrentTime: 0 };
@@ -102,6 +103,20 @@ export const PlayerContainer: React.FC<PlayerContainerProps> = ({
       ? Math.ceil(subtitleState.cues.length / CUES_PER_SEGMENT) 
       : 1;
 
+    // 5. Calculate Segment Markers (Start times for segments 1..N)
+  const segmentMarkers = useMemo(() => {
+      if (subtitleState.cues.length === 0) return [];
+      const markers: number[] = [];
+      // Skip 0 (start), mark starts of subsequent segments
+      for (let i = 1; i < totalSegments; i++) {
+          const cueIdx = i * CUES_PER_SEGMENT;
+          if (cueIdx < subtitleState.cues.length) {
+              markers.push(subtitleState.cues[cueIdx].start);
+          }
+      }
+      return markers;
+  }, [subtitleState.cues, totalSegments]);
+
   // Re-calculate local cue index relative to the slice
   const relativeCueIndex = currentCueIndex !== -1 ? currentCueIndex % CUES_PER_SEGMENT : -1;
 
@@ -117,6 +132,7 @@ export const PlayerContainer: React.FC<PlayerContainerProps> = ({
       // segmentDuration={segmentDuration}
       currentSegmentIndex={currentSegmentIndex}
       totalSegments={totalSegments}
+      segmentMarkers={segmentMarkers}
       onSegmentChange={onSegmentChange}
       isPlaying={isPlaying}
       onBack={onBack}

@@ -63,4 +63,5 @@ export const loadTrackMedia = async (track: Track): Promise<{
 export const cleanupTrackMedia = (audioState: AudioFileState) => {
     if (audioState.url) URL.revokeObjectURL(audioState.url);
     if (audioState.coverUrl) URL.revokeObjectURL(audioState.coverUrl);
+    audioState.coverUrl = null
 };

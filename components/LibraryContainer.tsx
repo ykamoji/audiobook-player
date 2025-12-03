@@ -15,7 +15,7 @@ interface LibraryContainerProps {
   // Actions
   // onSetTracks: (tracks: Track[], metadata?: AppData) => void;
   onSelectTrack: (track: Track, index: number, specificPlaylist?: Track[]) => void;
-  onBackToSetup: () => void;
+  // onBackToSetup: () => void;
   onToggleAutoPlay: () => void;
   onViewMetadata: (track: Track) => void;
   
@@ -43,7 +43,7 @@ export const LibraryContainer: React.FC<LibraryContainerProps> = ({
   // onSetTracks,
   activeTab,
   onSelectTrack,
-  onBackToSetup,
+  // onBackToSetup,
   onToggleAutoPlay,
   onViewMetadata,
   playlistActions,

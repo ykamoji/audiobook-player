@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { Controls } from './Controls';
-import {ChevronLeftIcon, XIcon, ListIcon, ChevronDownIcon} from './Icons';
+import {XIcon, ListIcon, ChevronDownIcon} from './Icons';
 import { AudioFileState, SubtitleFileState, SubtitleCue } from '../types';
 import { SlideWindow } from "./SlideWindow.tsx";
 import { animated } from "@react-spring/web";
@@ -17,6 +17,7 @@ interface PlayerViewProps {
 
   currentSegmentIndex: number;
   totalSegments: number;
+  segmentMarkers: number[];
   onSegmentChange: (index: number) => void;
 
   isPlaying: boolean;
@@ -42,6 +43,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
   currentCueIndex,
   currentTime,
   duration,
+  segmentMarkers,
   currentSegmentIndex,
   totalSegments,
   onSegmentChange,
@@ -60,11 +62,37 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
 }) => {
   const subtitleContainerRef = useRef<HTMLDivElement>(null);
   const activeSubtitleRef = useRef<HTMLDivElement>(null);
+  const allowScrollAnimationRef = useRef(false);
   const [showChapters, setShowChapters] = useState(false);
 
-  // --- Custom Smooth Scroll Logic ---
-  const scrollToActiveCue = () => {
-    if (!subtitleContainerRef.current || !activeSubtitleRef.current) return;
+    // Reset animation state when track changes to prevent initial "scroll down" animation.
+  useEffect(() => {
+      allowScrollAnimationRef.current = false;
+      const timer = setTimeout(() => {
+          allowScrollAnimationRef.current = true;
+      }, 1000);
+      return () => clearTimeout(timer);
+  }, [audioState.name]);
+
+
+  // Also disable animation temporarily when switching segments to avoid jarring jumps
+  useLayoutEffect(() => {
+      allowScrollAnimationRef.current = false;
+      const timer = setTimeout(() => {
+          allowScrollAnimationRef.current = true;
+      }, 500);
+      return () => clearTimeout(timer);
+  }, [currentSegmentIndex]);
+
+  const scrollToActiveCue = (retryCount = 0) => {
+    if (!subtitleContainerRef.current) return;
+    // Retry logic if the ref isn't attached yet (React rendering race condition)
+    if (!activeSubtitleRef.current) {
+        if (retryCount < 2) {
+            requestAnimationFrame(() => scrollToActiveCue(retryCount + 1));
+        }
+        return;
+    }
 
     const container = subtitleContainerRef.current;
     const element = activeSubtitleRef.current;
@@ -80,11 +108,18 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
     // Calculate target scroll position
     const targetScrollTop = elementTop - (containerHeight * offsetRatio) + (elementHeight / 2);
 
+    // Instant scroll if animation not yet allowed (Initial load / Resume jump / Segment change)
+
+    if (!allowScrollAnimationRef.current) {
+        container.scrollTop = targetScrollTop;
+        return;
+    }
+
     const startScrollTop = container.scrollTop;
     const distance = targetScrollTop - startScrollTop;
     
     // Don't scroll if distance is negligible
-    if (Math.abs(distance) < 2) return;
+    if (Math.abs(distance) < 5) return;
 
     const animationDuration = 800; // ms (slow, cinematic)
     let startTime: number | null = null;
@@ -109,17 +144,13 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
     requestAnimationFrame(animation);
   };
 
-  // Trigger scroll when the active cue changes
-  useEffect(() => {
+  // Trigger scroll when the active cue or segment changes.
+  // Using useLayoutEffect ensures calculations happen immediately after DOM update but before paint.
+  useLayoutEffect(() => {
     scrollToActiveCue();
-  }, [currentCueIndex]);
+  }, [currentCueIndex, currentSegmentIndex]);
 
-  // Reset subtitle scroll position when changing segments
-  useEffect(() => {
-    if (subtitleContainerRef.current) {
-        subtitleContainerRef.current.scrollTop = 0;
-    }
-  }, [currentSegmentIndex]);
+
 
   const formatSegmentTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "00:00";
@@ -134,17 +165,16 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
          playerApi.set({ y: 0 });
     }, []);
 
-
   return (
     // <div className="relative h-full overflow-hidden no-scrollbar flex flex-col ">
     //    Header (Absolute)
       <>
         <animated.div
-            {...bindPlayerSwipe()}
-            style={{y: playerY}}
-            className="absolute inset-0 flex flex-col bg-black overflow-hidden" >
+            {...(showChapters ? {} : bindPlayerSwipe())}
+            style={{ y: playerY, touchAction: showChapters ? 'auto' : 'none' }}
+            className="absolute inset-0 z-50 flex flex-col bg-black overflow-hidden pt-[calc(env(safe-area-inset-top)-10px)] ">
 
-          <div className="absolute top-0 left-0 right-0 z-30 p-4 flex items-center bg-gradient-to-b from-black/80 to-transparent">
+          <div className="absolute left-0 right-0 z-30 p-4 flex items-center bg-gradient-to-b from-black/80 to-transparent">
             <button
               onClick={onBack}
               className="p-2 text-white/90 hover:text-white transition-colors bg-black/20 rounded-full backdrop-blur-sm"
@@ -160,7 +190,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
       {/* Fixed Cover Image Area */}
       <div className="mt-14 w-full flex-none flex flex-col justify-center items-center h-[45dvh] min-h-[300px] max-h-[600px] z-10 transition-all duration-300">
           {audioState.coverUrl ? (
-              <div className="relative h-[85%] aspect-square rounded-lg overflow-hidden">
+              <div className="relative h-[85%] aspect-[4/3] overflow-hidden">
                   <img
                       src={audioState.coverUrl}
                       alt={audioState.name}
@@ -223,7 +253,8 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
 
 
       {/* Player Controls (Bottom Sheet) */}
-      <div className="glass bottom-0 left-0 right-0 p-4 pt-3 pb-4 border-t border-white/5 z-20" style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 100px)`}}>
+      <div className="glass left-0 right-0 pt-3 border-t border-white/5 relative"
+           style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 15px)`, "zIndex":"100"}}>
         <Controls
           isPlaying={isPlaying}
           onPlayPause={onTogglePlay}
@@ -231,6 +262,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           progress={duration > 0 ? (currentTime / duration) * 100 : 0}
           currentTime={currentTime}
           duration={duration}
+          segmentMarkers={segmentMarkers}
           onSeek={onSeek}
           onOpenMetadata={onOpenMetadata}
           onOpenChapters={() => setShowChapters(true)}
@@ -279,7 +311,6 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                         // Fallback logic if no subtitles exist (1 big segment)
                         dynDuration = duration;
                     }
-
                       return (
                           <button
                               key={i}

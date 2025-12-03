@@ -89,6 +89,10 @@ export const Library: React.FC<LibraryProps> = ({
 
   // Reset selection when tab changes
   useEffect(() => {
+
+      if(activeTab === 'titles' && selectedPlaylistId !== null){
+          setSelectedPlaylistId(null)
+      }
       setIsSelectionMode(false);
       setSelectedTrackIds(new Set());
       setScrollTop(0); // Reset scroll on tab change
@@ -116,10 +120,6 @@ export const Library: React.FC<LibraryProps> = ({
 
   // --- Derived State for Selection Logic ---
   const currentListTracks = useMemo(() => {
-
-    // if(activeTab === 'titles' && selectedPlaylistId)  {
-    //     setSelectedPlaylistId(prevState => !prevState)
-    // }
 
     if (selectedPlaylistId) {
         const playlist = playlists.find(p => p.id === selectedPlaylistId);
