@@ -254,7 +254,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
 
       {/* Player Controls (Bottom Sheet) */}
       <div className="glass left-0 right-0 pt-3 border-t border-white/5 relative"
-           style={{"paddingBottom": `calc(env(safe-area-inset-bottom) + 15px)`, "zIndex":"100"}}>
+           style={{"paddingBottom": `calc(env(safe-area-inset-bottom))`, "zIndex":"100"}}>
         <Controls
           isPlaying={isPlaying}
           onPlayPause={onTogglePlay}

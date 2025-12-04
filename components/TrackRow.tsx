@@ -150,7 +150,8 @@ export const TrackRow: React.FC<TrackRowProps> = ({
             </div>
             
             <div className="flex-1 min-w-0">
-            <h3 className={`font-medium truncate text-base leading-snug ${isSelected ? 'text-audible-orange' : 'text-white'}`}>{track.name}</h3>
+            <h3 className={`font-medium truncate text-base leading-snug ${isSelected ? 'text-audible-orange' : 'text-white'}`}>
+                {track.name.replace(/\s*\(.*?\)/g, "").trim()}</h3>
             
             {/* Meta Row */}
             <div className="flex flex-col gap-2 mt-2 pr-8">
