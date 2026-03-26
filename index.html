@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Audiobook Player</title>
+    <style>
+      body {
+        background-color: #111111;
+        color: white;
+        overscroll-behavior: none;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .glass {
+        background: rgba(31, 31, 31, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+    </style>
+
+    <script>
+    function updateHeight() {
+      document.documentElement.style.setProperty(
+        '--app-height',
+        `${window.innerHeight}px`
+      );
+    }
+    window.addEventListener('resize', updateHeight);
+    updateHeight();
+</script>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@capacitor/core": "https://aistudiocdn.com/@capacitor/core@^7.4.4",
+    "@capacitor/filesystem": "https://aistudiocdn.com/@capacitor/filesystem@^7.1.5",
+    "@capawesome/capacitor-file-picker": "https://aistudiocdn.com/@capawesome/capacitor-file-picker@^6.2.0"
+  }
+}
+</script>
+  <script type="module" crossorigin src="./assets/index-B7sy4wEj.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-B4n40bXV.css">
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
